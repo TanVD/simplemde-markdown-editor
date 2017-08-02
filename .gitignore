@@ -1,3 +1,5 @@
+dist/*git
+debug/*
 localtesting/
 node_modules/
 bower_components/

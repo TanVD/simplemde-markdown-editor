@@ -10,106 +10,30 @@ require("codemirror/addon/display/placeholder.js");
 require("codemirror/addon/selection/mark-selection.js");
 require("codemirror/mode/gfm/gfm.js");
 require("codemirror/mode/xml/xml.js");
-var CodeMirrorSpellChecker = require("codemirror-spell-checker");
 var marked = require("marked");
-
-
-// Some variables
-var isMac = /Mac/.test(navigator.platform);
-
-// Mapping of actions that can be bound to keyboard shortcuts or toolbar buttons
-var bindings = {
-	"toggleBold": toggleBold,
-	"toggleItalic": toggleItalic,
-	"drawLink": drawLink,
-	"toggleHeadingSmaller": toggleHeadingSmaller,
-	"toggleHeadingBigger": toggleHeadingBigger,
-	"drawImage": drawImage,
-	"toggleBlockquote": toggleBlockquote,
-	"toggleOrderedList": toggleOrderedList,
-	"toggleUnorderedList": toggleUnorderedList,
-	"toggleCodeBlock": toggleCodeBlock,
-	"togglePreview": togglePreview,
-	"toggleStrikethrough": toggleStrikethrough,
-	"toggleHeading1": toggleHeading1,
-	"toggleHeading2": toggleHeading2,
-	"toggleHeading3": toggleHeading3,
-	"cleanBlock": cleanBlock,
-	"drawTable": drawTable,
-	"drawHorizontalRule": drawHorizontalRule,
-	"undo": undo,
-	"redo": redo,
-	"toggleSideBySide": toggleSideBySide,
-	"toggleFullScreen": toggleFullScreen
-};
-
-var shortcuts = {
-	"toggleBold": "Cmd-B",
-	"toggleItalic": "Cmd-I",
-	"drawLink": "Cmd-K",
-	"toggleHeadingSmaller": "Cmd-H",
-	"toggleHeadingBigger": "Shift-Cmd-H",
-	"cleanBlock": "Cmd-E",
-	"drawImage": "Cmd-Alt-I",
-	"toggleBlockquote": "Cmd-'",
-	"toggleOrderedList": "Cmd-Alt-L",
-	"toggleUnorderedList": "Cmd-L",
-	"toggleCodeBlock": "Cmd-Alt-C",
-	"togglePreview": "Cmd-P",
-	"toggleSideBySide": "F9",
-	"toggleFullScreen": "F11"
-};
-
-var getBindingName = function(f) {
-	for(var key in bindings) {
-		if(bindings[key] === f) {
-			return key;
-		}
-	}
-	return null;
-};
-
-var isMobile = function() {
-	var check = false;
-	(function(a) {
-		if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino|android|ipad|playbook|silk/i.test(a) || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0, 4))) check = true;
-	})(navigator.userAgent || navigator.vendor || window.opera);
-	return check;
-};
-
-
-/**
- * Fix shortcut. Mac use Command, others use Ctrl.
- */
-function fixShortcut(name) {
-	if(isMac) {
-		name = name.replace("Ctrl", "Cmd");
-	} else {
-		name = name.replace("Cmd", "Ctrl");
-	}
-	return name;
-}
-
+var toMarkdown = require("to-markdown");
 
 /**
  * Create icon element for toolbar.
  */
-function createIcon(options, enableTooltips, shortcuts) {
+function createIcon(options) {
 	options = options || {};
 	var el = document.createElement("a");
-	enableTooltips = (enableTooltips == undefined) ? true : enableTooltips;
-
-	if(options.title && enableTooltips) {
-		el.title = createTootlip(options.title, options.action, shortcuts);
-
-		if(isMac) {
-			el.title = el.title.replace("Ctrl", "⌘");
-			el.title = el.title.replace("Alt", "⌥");
-		}
-	}
 
 	el.tabIndex = -1;
 	el.className = options.className;
+	return el;
+}
+
+/**
+ * Create placeholder element for toolbar.
+ */
+function createPlaceholder(text) {
+	var el = document.createElement("p");
+
+	el.tabIndex = -1;
+	el.textContent = text;
+	el.className = "tagcloud01";
 	return el;
 }
 
@@ -118,20 +42,6 @@ function createSep() {
 	el.className = "separator";
 	el.innerHTML = "|";
 	return el;
-}
-
-function createTootlip(title, action, shortcuts) {
-	var actionName;
-	var tooltip = title;
-
-	if(action) {
-		actionName = getBindingName(action);
-		if(shortcuts[actionName]) {
-			tooltip += " (" + fixShortcut(shortcuts[actionName]) + ")";
-		}
-	}
-
-	return tooltip;
 }
 
 /**
@@ -179,59 +89,20 @@ function getState(cm, pos) {
 }
 
 
-// Saved overflow setting
-var saved_overflow = "";
-
-/**
- * Toggle full screen of the editor.
- */
-function toggleFullScreen(editor) {
-	// Set fullscreen
-	var cm = editor.codemirror;
-	cm.setOption("fullScreen", !cm.getOption("fullScreen"));
-
-
-	// Prevent scrolling on body during fullscreen active
-	if(cm.getOption("fullScreen")) {
-		saved_overflow = document.body.style.overflow;
-		document.body.style.overflow = "hidden";
-	} else {
-		document.body.style.overflow = saved_overflow;
-	}
-
-
-	// Update toolbar class
-	var wrap = cm.getWrapperElement();
-
-	if(!/fullscreen/.test(wrap.previousSibling.className)) {
-		wrap.previousSibling.className += " fullscreen";
-	} else {
-		wrap.previousSibling.className = wrap.previousSibling.className.replace(/\s*fullscreen\b/, "");
-	}
-
-
-	// Update toolbar button
-	var toolbarButton = editor.toolbarElements.fullscreen;
-
-	if(!/active/.test(toolbarButton.className)) {
-		toolbarButton.className += " active";
-	} else {
-		toolbarButton.className = toolbarButton.className.replace(/\s*active\s*/g, "");
-	}
-
-
-	// Hide side by side if needed
-	var sidebyside = cm.getWrapperElement().nextSibling;
-	if(/editor-preview-active-side/.test(sidebyside.className))
-		toggleSideBySide(editor);
-}
-
-
 /**
  * Action for toggling bold.
  */
 function toggleBold(editor) {
 	_toggleBlock(editor, "bold", editor.options.blockStyles.bold);
+}
+
+
+/**
+ * Action to insert text at cursor position
+ */
+function addText(editor, text, mark) {
+	var cm = editor.codemirror;
+	_replaceSelectionWithText(cm, text, mark);
 }
 
 
@@ -686,67 +557,6 @@ function redo(editor) {
 
 
 /**
- * Toggle side by side preview
- */
-function toggleSideBySide(editor) {
-	var cm = editor.codemirror;
-	var wrapper = cm.getWrapperElement();
-	var preview = wrapper.nextSibling;
-	var toolbarButton = editor.toolbarElements["side-by-side"];
-	var useSideBySideListener = false;
-	if(/editor-preview-active-side/.test(preview.className)) {
-		preview.className = preview.className.replace(
-			/\s*editor-preview-active-side\s*/g, ""
-		);
-		toolbarButton.className = toolbarButton.className.replace(/\s*active\s*/g, "");
-		wrapper.className = wrapper.className.replace(/\s*CodeMirror-sided\s*/g, " ");
-	} else {
-		// When the preview button is clicked for the first time,
-		// give some time for the transition from editor.css to fire and the view to slide from right to left,
-		// instead of just appearing.
-		setTimeout(function() {
-			if(!cm.getOption("fullScreen"))
-				toggleFullScreen(editor);
-			preview.className += " editor-preview-active-side";
-		}, 1);
-		toolbarButton.className += " active";
-		wrapper.className += " CodeMirror-sided";
-		useSideBySideListener = true;
-	}
-
-	// Hide normal preview if active
-	var previewNormal = wrapper.lastChild;
-	if(/editor-preview-active/.test(previewNormal.className)) {
-		previewNormal.className = previewNormal.className.replace(
-			/\s*editor-preview-active\s*/g, ""
-		);
-		var toolbar = editor.toolbarElements.preview;
-		var toolbar_div = wrapper.previousSibling;
-		toolbar.className = toolbar.className.replace(/\s*active\s*/g, "");
-		toolbar_div.className = toolbar_div.className.replace(/\s*disabled-for-preview*/g, "");
-	}
-
-	var sideBySideRenderingFunction = function() {
-		preview.innerHTML = editor.options.previewRender(editor.value(), preview);
-	};
-
-	if(!cm.sideBySideRenderingFunction) {
-		cm.sideBySideRenderingFunction = sideBySideRenderingFunction;
-	}
-
-	if(useSideBySideListener) {
-		preview.innerHTML = editor.options.previewRender(editor.value(), preview);
-		cm.on("update", cm.sideBySideRenderingFunction);
-	} else {
-		cm.off("update", cm.sideBySideRenderingFunction);
-	}
-
-	// Refresh to fix selection being off (#309)
-	cm.refresh();
-}
-
-
-/**
  * Preview action.
  */
 function togglePreview(editor) {
@@ -781,11 +591,70 @@ function togglePreview(editor) {
 		}
 	}
 	preview.innerHTML = editor.options.previewRender(editor.value(), preview);
+}
 
-	// Turn off side by side if needed
-	var sidebyside = cm.getWrapperElement().nextSibling;
-	if(/editor-preview-active-side/.test(sidebyside.className))
-		toggleSideBySide(editor);
+function switchMode(editor) {
+	if(editor.options.currentMode === "HTML") {
+		fromHTML(editor);
+	} else {
+		toHTML(editor);
+	}
+}
+
+function toHTML(editor) {
+	if(editor.options.currentMode === "Markdown") {
+		var cm = editor.codemirror;
+		var htmlText = editor.options.previewRender(editor.value());
+		var htmlMode = {
+			name: "xml",
+			htmlMode: true
+		};
+		cm.setValue("");
+		cm.clearHistory();
+		cm.setOption("mode", htmlMode);
+		cm.setValue(htmlText);
+		editor.options.currentMode = "HTML";
+	}
+}
+
+function saveHTML(editor) {
+	var htmlText = "";
+	if(editor.options.currentMode === "Markdown") {
+		htmlText = editor.options.previewRender(editor.value());
+	} else {
+		htmlText = editor.value();
+	}
+	$("input[name='" + editor.element.id + "Html']").val(htmlText);
+}
+
+function fromHTML(editor) {
+	if(editor.options.currentMode === "HTML") {
+		var cm = editor.codemirror;
+		var markdownText = toMarkdown(editor.value(), {
+			gfm: true
+		});
+		var markdownMode = editor.options.parsingConfig;
+		markdownMode.name = "gfm";
+		markdownMode.gitHubSpice = false;
+		cm.setValue("");
+		cm.clearHistory();
+		cm.setOption("mode", markdownMode);
+		cm.setValue(markdownText);
+		editor.options.currentMode = "Markdown";
+	}
+}
+
+function _replaceSelectionWithText(cm, text, mark) {
+	var start = cm.getCursor("start");
+	var end = cm.getCursor("end");
+
+	// cm.markText();
+
+	cm.replaceRange(text, start, end, cm.getCursor());
+
+	end.ch = start.ch + text.length;
+	// cm.markText(start, end, mark);
+	cm.focus();
 }
 
 function _replaceSelection(cm, active, startEnd, url) {
@@ -1050,22 +919,6 @@ function extend(target) {
 	return target;
 }
 
-/* The right word count in respect for CJK. */
-function wordCount(data) {
-	var pattern = /[a-zA-Z0-9_\u0392-\u03c9\u0410-\u04F9]+|[\u4E00-\u9FFF\u3400-\u4dbf\uf900-\ufaff\u3040-\u309f\uac00-\ud7af]+/g;
-	var m = data.match(pattern);
-	var count = 0;
-	if(m === null) return count;
-	for(var i = 0; i < m.length; i++) {
-		if(m[i].charCodeAt(0) >= 0x4E00) {
-			count += m[i].length;
-		} else {
-			count += 1;
-		}
-	}
-	return count;
-}
-
 var toolbarBuiltInButtons = {
 	"bold": {
 		name: "bold",
@@ -1199,28 +1052,14 @@ var toolbarBuiltInButtons = {
 		title: "Toggle Preview",
 		default: true
 	},
-	"side-by-side": {
-		name: "side-by-side",
-		action: toggleSideBySide,
-		className: "fa fa-columns no-disable no-mobile",
-		title: "Toggle Side by Side",
-		default: true
-	},
-	"fullscreen": {
-		name: "fullscreen",
-		action: toggleFullScreen,
-		className: "fa fa-arrows-alt no-disable no-mobile",
-		title: "Toggle Fullscreen",
-		default: true
-	},
 	"separator-4": {
 		name: "separator-4"
 	},
-	"guide": {
-		name: "guide",
-		action: "https://simplemde.com/markdown-guide",
-		className: "fa fa-question-circle",
-		title: "Markdown Guide",
+	"switchMode": {
+		name: "switchMode",
+		action: switchMode,
+		className: "fa fa-html5",
+		title: "Convert to HTML",
 		default: true
 	},
 	"separator-5": {
@@ -1258,43 +1097,28 @@ var blockStyles = {
 	"italic": "*"
 };
 
+SimpleMDE.instances = [];
+
 /**
  * Interface of SimpleMDE.
  */
 function SimpleMDE(options) {
-	// Handle options parameter
+	// Get options from predefined function
 	options = options || {};
+
+	// Set default options for parsing config
+	options = extend(options, getSimpleMdeOptions(options.element.id) || {});
 
 
 	// Used later to refer to it"s parent
 	options.parent = this;
 
 
-	// Check if Font Awesome needs to be auto downloaded
-	var autoDownloadFA = true;
-
-	if(options.autoDownloadFontAwesome === false) {
-		autoDownloadFA = false;
-	}
-
-	if(options.autoDownloadFontAwesome !== true) {
-		var styleSheets = document.styleSheets;
-		for(var i = 0; i < styleSheets.length; i++) {
-			if(!styleSheets[i].href)
-				continue;
-
-			if(styleSheets[i].href.indexOf("//maxcdn.bootstrapcdn.com/font-awesome/") > -1) {
-				autoDownloadFA = false;
-			}
-		}
-	}
-
-	if(autoDownloadFA) {
-		var link = document.createElement("link");
-		link.rel = "stylesheet";
-		link.href = "https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css";
-		document.getElementsByTagName("head")[0].appendChild(link);
-	}
+	// Auto download FA
+	var link = document.createElement("link");
+	link.rel = "stylesheet";
+	link.href = "https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css";
+	document.getElementsByTagName("head")[0].appendChild(link);
 
 
 	// Find the textarea to use
@@ -1306,41 +1130,40 @@ function SimpleMDE(options) {
 		return;
 	}
 
+	//Handle tagsbar
+	options.tagsbar = [];
+
+	for(var index = 0; index < options.currentSegment.length; index++) {
+		var obj = options.currentSegment[index];
+		options.tagsbar.push({
+			name: obj.name,
+			description: obj.description,
+			action: addText
+		});
+	}
+
 
 	// Handle toolbar
-	if(options.toolbar === undefined) {
-		// Initialize
-		options.toolbar = [];
+	options.toolbar = [];
+	// Loop over the built in buttons, to get the preferred order
+	for(var key in toolbarBuiltInButtons) {
+		if(toolbarBuiltInButtons.hasOwnProperty(key)) {
+			if(key.indexOf("separator-") != -1) {
+				options.toolbar.push("|");
+			}
 
-
-		// Loop over the built in buttons, to get the preferred order
-		for(var key in toolbarBuiltInButtons) {
-			if(toolbarBuiltInButtons.hasOwnProperty(key)) {
-				if(key.indexOf("separator-") != -1) {
-					options.toolbar.push("|");
-				}
-
-				if(toolbarBuiltInButtons[key].default === true || (options.showIcons && options.showIcons.constructor === Array && options.showIcons.indexOf(key) != -1)) {
-					options.toolbar.push(key);
-				}
+			if(toolbarBuiltInButtons[key].default === true || (options.showIcons && options.showIcons.constructor === Array && options.showIcons.indexOf(key) != -1)) {
+				options.toolbar.push(key);
 			}
 		}
 	}
 
 
-	// Handle status bar
-	if(!options.hasOwnProperty("status")) {
-		options.status = ["autosave", "lines", "words", "cursor"];
-	}
-
-
 	// Add default preview rendering function
-	if(!options.previewRender) {
-		options.previewRender = function(plainText) {
-			// Note: "this" refers to the options object
-			return this.parent.markdown(plainText);
-		};
-	}
+	options.previewRender = function(plainText) {
+		// Note: "this" refers to the options object
+		return this.parent.markdown(plainText);
+	};
 
 
 	// Set default options for parsing config
@@ -1360,30 +1183,14 @@ function SimpleMDE(options) {
 	// Merging the blockStyles, with the given options
 	options.blockStyles = extend({}, blockStyles, options.blockStyles || {});
 
-
-	// Merging the shortcuts, with the given options
-	options.shortcuts = extend({}, shortcuts, options.shortcuts || {});
-
-
-	// Change unique_id to uniqueId for backwards compatibility
-	if(options.autosave != undefined && options.autosave.unique_id != undefined && options.autosave.unique_id != "")
-		options.autosave.uniqueId = options.autosave.unique_id;
-
-
 	// Update this options
 	this.options = options;
 
 
 	// Auto render
-	this.render();
+	this.render(this.element);
 
-
-	// The codemirror component is only available after rendering
-	// so, the setter for the initialValue can only run after
-	// the element has been rendered
-	if(options.initialValue && (!this.options.autosave || this.options.autosave.foundSavedValue !== true)) {
-		this.value(options.initialValue);
-	}
+	SimpleMDE.instances.push(this);
 }
 
 /**
@@ -1422,10 +1229,6 @@ SimpleMDE.prototype.markdown = function(text) {
  * Render editor to the given element.
  */
 SimpleMDE.prototype.render = function(el) {
-	if(!el) {
-		el = this.element || document.getElementsByTagName("textarea")[0];
-	}
-
 	if(this._rendered && this._rendered === el) {
 		// Already rendered.
 		return;
@@ -1434,54 +1237,14 @@ SimpleMDE.prototype.render = function(el) {
 	this.element = el;
 	var options = this.options;
 
-	var self = this;
 	var keyMaps = {};
 
-	for(var key in options.shortcuts) {
-		// null stands for "do not bind this command"
-		if(options.shortcuts[key] !== null && bindings[key] !== null) {
-			(function(key) {
-				keyMaps[fixShortcut(options.shortcuts[key])] = function() {
-					bindings[key](self);
-				};
-			})(key);
-		}
-	}
-
-	keyMaps["Enter"] = "newlineAndIndentContinueMarkdownList";
-	keyMaps["Tab"] = "tabAndIndentMarkdownList";
-	keyMaps["Shift-Tab"] = "shiftTabAndUnindentMarkdownList";
-	keyMaps["Esc"] = function(cm) {
-		if(cm.getOption("fullScreen")) toggleFullScreen(self);
-	};
-
-	document.addEventListener("keydown", function(e) {
-		e = e || window.event;
-
-		if(e.keyCode == 27) {
-			if(self.codemirror.getOption("fullScreen")) toggleFullScreen(self);
-		}
-	}, false);
-
-	var mode, backdrop;
-	if(options.spellChecker !== false) {
-		mode = "spell-checker";
-		backdrop = options.parsingConfig;
-		backdrop.name = "gfm";
-		backdrop.gitHubSpice = false;
-
-		CodeMirrorSpellChecker({
-			codeMirrorInstance: CodeMirror
-		});
-	} else {
-		mode = options.parsingConfig;
-		mode.name = "gfm";
-		mode.gitHubSpice = false;
-	}
+	var mode = options.parsingConfig;
+	mode.name = "gfm";
+	mode.gitHubSpice = false;
 
 	this.codemirror = CodeMirror.fromTextArea(el, {
 		mode: mode,
-		backdrop: backdrop,
 		theme: "paper",
 		tabSize: (options.tabSize != undefined) ? options.tabSize : 2,
 		indentUnit: (options.tabSize != undefined) ? options.tabSize : 2,
@@ -1504,19 +1267,24 @@ SimpleMDE.prototype.render = function(el) {
 
 	this.gui = {};
 
-	if(options.toolbar !== false) {
+	if(this.options.isToolsbarEnabled) {
 		this.gui.toolbar = this.createToolbar();
 	}
-	if(options.status !== false) {
-		this.gui.statusbar = this.createStatusbar();
+	if(this.options.isTagsbarEnabled) {
+		this.gui.tagsbar = this.createTagsbar();
 	}
-	if(options.autosave != undefined && options.autosave.enabled === true) {
-		this.autosave();
-	}
-
-	this.gui.sideBySide = this.createSideBySide();
 
 	this._rendered = this.element;
+
+	if(this.options.isSmallSize) {
+		this.options.isSmall = true;
+		this.codemirror.getWrapperElement().className += " CodeMirror-small";
+	}
+
+	if(this.options.currentMode === "HTML") {
+		fromHTML(this);
+		this.options.currentMode = "Markdown";
+	}
 
 
 	// Fixes CodeMirror bug (#344)
@@ -1524,129 +1292,6 @@ SimpleMDE.prototype.render = function(el) {
 	setTimeout(function() {
 		temp_cm.refresh();
 	}.bind(temp_cm), 0);
-};
-
-// Safari, in Private Browsing Mode, looks like it supports localStorage but all calls to setItem throw QuotaExceededError. We're going to detect this and set a variable accordingly.
-function isLocalStorageAvailable() {
-	if(typeof localStorage === "object") {
-		try {
-			localStorage.setItem("smde_localStorage", 1);
-			localStorage.removeItem("smde_localStorage");
-		} catch(e) {
-			return false;
-		}
-	} else {
-		return false;
-	}
-
-	return true;
-}
-
-SimpleMDE.prototype.autosave = function() {
-	if(isLocalStorageAvailable()) {
-		var simplemde = this;
-
-		if(this.options.autosave.uniqueId == undefined || this.options.autosave.uniqueId == "") {
-			console.log("SimpleMDE: You must set a uniqueId to use the autosave feature");
-			return;
-		}
-
-		if(simplemde.element.form != null && simplemde.element.form != undefined) {
-			simplemde.element.form.addEventListener("submit", function() {
-				localStorage.removeItem("smde_" + simplemde.options.autosave.uniqueId);
-			});
-		}
-
-		if(this.options.autosave.loaded !== true) {
-			if(typeof localStorage.getItem("smde_" + this.options.autosave.uniqueId) == "string" && localStorage.getItem("smde_" + this.options.autosave.uniqueId) != "") {
-				this.codemirror.setValue(localStorage.getItem("smde_" + this.options.autosave.uniqueId));
-				this.options.autosave.foundSavedValue = true;
-			}
-
-			this.options.autosave.loaded = true;
-		}
-
-		localStorage.setItem("smde_" + this.options.autosave.uniqueId, simplemde.value());
-
-		var el = document.getElementById("autosaved");
-		if(el != null && el != undefined && el != "") {
-			var d = new Date();
-			var hh = d.getHours();
-			var m = d.getMinutes();
-			var dd = "am";
-			var h = hh;
-			if(h >= 12) {
-				h = hh - 12;
-				dd = "pm";
-			}
-			if(h == 0) {
-				h = 12;
-			}
-			m = m < 10 ? "0" + m : m;
-
-			el.innerHTML = "Autosaved: " + h + ":" + m + " " + dd;
-		}
-
-		this.autosaveTimeoutId = setTimeout(function() {
-			simplemde.autosave();
-		}, this.options.autosave.delay || 10000);
-	} else {
-		console.log("SimpleMDE: localStorage not available, cannot autosave");
-	}
-};
-
-SimpleMDE.prototype.clearAutosavedValue = function() {
-	if(isLocalStorageAvailable()) {
-		if(this.options.autosave == undefined || this.options.autosave.uniqueId == undefined || this.options.autosave.uniqueId == "") {
-			console.log("SimpleMDE: You must set a uniqueId to clear the autosave value");
-			return;
-		}
-
-		localStorage.removeItem("smde_" + this.options.autosave.uniqueId);
-	} else {
-		console.log("SimpleMDE: localStorage not available, cannot autosave");
-	}
-};
-
-SimpleMDE.prototype.createSideBySide = function() {
-	var cm = this.codemirror;
-	var wrapper = cm.getWrapperElement();
-	var preview = wrapper.nextSibling;
-
-	if(!preview || !/editor-preview-side/.test(preview.className)) {
-		preview = document.createElement("div");
-		preview.className = "editor-preview-side";
-		wrapper.parentNode.insertBefore(preview, wrapper.nextSibling);
-	}
-
-	// Syncs scroll  editor -> preview
-	var cScroll = false;
-	var pScroll = false;
-	cm.on("scroll", function(v) {
-		if(cScroll) {
-			cScroll = false;
-			return;
-		}
-		pScroll = true;
-		var height = v.getScrollInfo().height - v.getScrollInfo().clientHeight;
-		var ratio = parseFloat(v.getScrollInfo().top) / height;
-		var move = (preview.scrollHeight - preview.clientHeight) * ratio;
-		preview.scrollTop = move;
-	});
-
-	// Syncs scroll  preview -> editor
-	preview.onscroll = function() {
-		if(pScroll) {
-			pScroll = false;
-			return;
-		}
-		cScroll = true;
-		var height = preview.scrollHeight - preview.clientHeight;
-		var ratio = parseFloat(preview.scrollTop) / height;
-		var move = (cm.getScrollInfo().height - cm.getScrollInfo().clientHeight) * ratio;
-		cm.scrollTo(0, move);
-	};
-	return preview;
 };
 
 SimpleMDE.prototype.createToolbar = function(items) {
@@ -1677,12 +1322,6 @@ SimpleMDE.prototype.createToolbar = function(items) {
 		if(self.options.hideIcons && self.options.hideIcons.indexOf(items[i].name) != -1)
 			continue;
 
-		// Fullscreen does not work well on mobile devices (even tablets)
-		// In the future, hopefully this can be resolved
-		if((items[i].name == "fullscreen" || items[i].name == "side-by-side") && isMobile())
-			continue;
-
-
 		// Don't include trailing separators
 		if(items[i] === "|") {
 			var nonSeparatorIconsFollow = false;
@@ -1704,7 +1343,7 @@ SimpleMDE.prototype.createToolbar = function(items) {
 			if(item === "|") {
 				el = createSep();
 			} else {
-				el = createIcon(item, self.options.toolbarTips, self.options.shortcuts);
+				el = createIcon(item);
 			}
 
 			// bind events, special for info
@@ -1736,7 +1375,7 @@ SimpleMDE.prototype.createToolbar = function(items) {
 				var el = toolbarData[key];
 				if(stat[key]) {
 					el.className += " active";
-				} else if(key != "fullscreen" && key != "side-by-side") {
+				} else {
 					el.className = el.className.replace(/\s*active\s*/g, "");
 				}
 			})(key);
@@ -1748,118 +1387,43 @@ SimpleMDE.prototype.createToolbar = function(items) {
 	return bar;
 };
 
-SimpleMDE.prototype.createStatusbar = function(status) {
-	// Initialize
-	status = status || this.options.status;
-	var options = this.options;
-	var cm = this.codemirror;
+function createAddTag(self, item) {
+	return function(e) {
+		e.preventDefault();
+		item.action(self, "${" + item.name + "}", "");
+	};
+}
 
+SimpleMDE.prototype.createTagsbar = function(items) {
+	items = items || this.options.tagsbar;
 
-	// Make sure the status variable is valid
-	if(!status || status.length === 0)
+	if(!items || items.length === 0) {
 		return;
-
-
-	// Set up the built-in items
-	var items = [];
-	var i, onUpdate, defaultValue;
-
-	for(i = 0; i < status.length; i++) {
-		// Reset some values
-		onUpdate = undefined;
-		defaultValue = undefined;
-
-
-		// Handle if custom or not
-		if(typeof status[i] === "object") {
-			items.push({
-				className: status[i].className,
-				defaultValue: status[i].defaultValue,
-				onUpdate: status[i].onUpdate
-			});
-		} else {
-			var name = status[i];
-
-			if(name === "words") {
-				defaultValue = function(el) {
-					el.innerHTML = wordCount(cm.getValue());
-				};
-				onUpdate = function(el) {
-					el.innerHTML = wordCount(cm.getValue());
-				};
-			} else if(name === "lines") {
-				defaultValue = function(el) {
-					el.innerHTML = cm.lineCount();
-				};
-				onUpdate = function(el) {
-					el.innerHTML = cm.lineCount();
-				};
-			} else if(name === "cursor") {
-				defaultValue = function(el) {
-					el.innerHTML = "0:0";
-				};
-				onUpdate = function(el) {
-					var pos = cm.getCursor();
-					el.innerHTML = pos.line + ":" + pos.ch;
-				};
-			} else if(name === "autosave") {
-				defaultValue = function(el) {
-					if(options.autosave != undefined && options.autosave.enabled === true) {
-						el.setAttribute("id", "autosaved");
-					}
-				};
-			}
-
-			items.push({
-				className: name,
-				defaultValue: defaultValue,
-				onUpdate: onUpdate
-			});
-		}
 	}
-
-
-	// Create element for the status bar
 	var bar = document.createElement("div");
-	bar.className = "editor-statusbar";
+	bar.className = "editor-tagsbar";
 
+	var self = this;
 
-	// Create a new span for each item
-	for(i = 0; i < items.length; i++) {
-		// Store in temporary variable
-		var item = items[i];
+	var toolbarData = {};
+	self.toolbar = items;
 
-
-		// Create span element
-		var el = document.createElement("span");
-		el.className = item.className;
-
-
-		// Ensure the defaultValue is a function
-		if(typeof item.defaultValue === "function") {
-			item.defaultValue(el);
-		}
-
-
-		// Ensure the onUpdate is a function
-		if(typeof item.onUpdate === "function") {
-			// Create a closure around the span of the current action, then execute the onUpdate handler
-			this.codemirror.on("update", (function(el, item) {
-				return function() {
-					item.onUpdate(el);
-				};
-			}(el, item)));
-		}
-
-
-		// Append the item to the status bar
+	for(var i = 0; i < items.length; i++) {
+		var el = createPlaceholder(items[i].description);
+		toolbarData[items[i].name] = el;
 		bar.appendChild(el);
+
+		// bind events, special for info
+		if(items[i].action) {
+			el.onclick = createAddTag(self, items[i]);
+		}
 	}
 
+	self.toolbarElements = toolbarData;
 
-	// Insert the status bar into the DOM
-	var cmWrapper = this.codemirror.getWrapperElement();
-	cmWrapper.parentNode.insertBefore(bar, cmWrapper.nextSibling);
+	var cm = this.codemirror;
+	var cmWrapper = cm.getWrapperElement();
+	cmWrapper.parentNode.insertBefore(bar, cmWrapper);
 	return bar;
 };
 
@@ -1899,105 +1463,14 @@ SimpleMDE.drawHorizontalRule = drawHorizontalRule;
 SimpleMDE.undo = undo;
 SimpleMDE.redo = redo;
 SimpleMDE.togglePreview = togglePreview;
-SimpleMDE.toggleSideBySide = toggleSideBySide;
-SimpleMDE.toggleFullScreen = toggleFullScreen;
+SimpleMDE.saveHTML = saveHTML;
 
-/**
- * Bind instance methods for exports.
- */
-SimpleMDE.prototype.toggleBold = function() {
-	toggleBold(this);
-};
-SimpleMDE.prototype.toggleItalic = function() {
-	toggleItalic(this);
-};
-SimpleMDE.prototype.toggleStrikethrough = function() {
-	toggleStrikethrough(this);
-};
-SimpleMDE.prototype.toggleBlockquote = function() {
-	toggleBlockquote(this);
-};
-SimpleMDE.prototype.toggleHeadingSmaller = function() {
-	toggleHeadingSmaller(this);
-};
-SimpleMDE.prototype.toggleHeadingBigger = function() {
-	toggleHeadingBigger(this);
-};
-SimpleMDE.prototype.toggleHeading1 = function() {
-	toggleHeading1(this);
-};
-SimpleMDE.prototype.toggleHeading2 = function() {
-	toggleHeading2(this);
-};
-SimpleMDE.prototype.toggleHeading3 = function() {
-	toggleHeading3(this);
-};
-SimpleMDE.prototype.toggleCodeBlock = function() {
-	toggleCodeBlock(this);
-};
-SimpleMDE.prototype.toggleUnorderedList = function() {
-	toggleUnorderedList(this);
-};
-SimpleMDE.prototype.toggleOrderedList = function() {
-	toggleOrderedList(this);
-};
-SimpleMDE.prototype.cleanBlock = function() {
-	cleanBlock(this);
-};
-SimpleMDE.prototype.drawLink = function() {
-	drawLink(this);
-};
-SimpleMDE.prototype.drawImage = function() {
-	drawImage(this);
-};
-SimpleMDE.prototype.drawTable = function() {
-	drawTable(this);
-};
-SimpleMDE.prototype.drawHorizontalRule = function() {
-	drawHorizontalRule(this);
-};
+
 SimpleMDE.prototype.undo = function() {
 	undo(this);
 };
 SimpleMDE.prototype.redo = function() {
 	redo(this);
-};
-SimpleMDE.prototype.togglePreview = function() {
-	togglePreview(this);
-};
-SimpleMDE.prototype.toggleSideBySide = function() {
-	toggleSideBySide(this);
-};
-SimpleMDE.prototype.toggleFullScreen = function() {
-	toggleFullScreen(this);
-};
-
-SimpleMDE.prototype.isPreviewActive = function() {
-	var cm = this.codemirror;
-	var wrapper = cm.getWrapperElement();
-	var preview = wrapper.lastChild;
-
-	return /editor-preview-active/.test(preview.className);
-};
-
-SimpleMDE.prototype.isSideBySideActive = function() {
-	var cm = this.codemirror;
-	var wrapper = cm.getWrapperElement();
-	var preview = wrapper.nextSibling;
-
-	return /editor-preview-active-side/.test(preview.className);
-};
-
-SimpleMDE.prototype.isFullscreenActive = function() {
-	var cm = this.codemirror;
-
-	return cm.getOption("fullScreen");
-};
-
-SimpleMDE.prototype.getState = function() {
-	var cm = this.codemirror;
-
-	return getState(cm);
 };
 
 SimpleMDE.prototype.toTextArea = function() {
@@ -2008,21 +1481,9 @@ SimpleMDE.prototype.toTextArea = function() {
 		if(this.gui.toolbar) {
 			wrapper.parentNode.removeChild(this.gui.toolbar);
 		}
-		if(this.gui.statusbar) {
-			wrapper.parentNode.removeChild(this.gui.statusbar);
-		}
-		if(this.gui.sideBySide) {
-			wrapper.parentNode.removeChild(this.gui.sideBySide);
-		}
 	}
 
 	cm.toTextArea();
-
-	if(this.autosaveTimeoutId) {
-		clearTimeout(this.autosaveTimeoutId);
-		this.autosaveTimeoutId = undefined;
-		this.clearAutosavedValue();
-	}
 };
 
 module.exports = SimpleMDE;
