@@ -26,14 +26,14 @@ function createIcon(options) {
 }
 
 /**
- * Create placeholder element for toolbar.
+ * Create placeholder element for tagsbar.
  */
-function createPlaceholder(text) {
+function createPlaceholder(text, group) {
 	var el = document.createElement("p");
 
 	el.tabIndex = -1;
 	el.textContent = text;
-	el.className = "tagcloud01";
+	el.className = "tagcloud01 " + "taggroup-" + group;
 	return el;
 }
 
@@ -644,16 +644,22 @@ function fromHTML(editor) {
 	}
 }
 
-function _replaceSelectionWithText(cm, text, mark) {
-	var start = cm.getCursor("start");
-	var end = cm.getCursor("end");
+/** Utility clone function. **/
+function cloneCursor(obj) {
+	return {
+		line: obj.line,
+		ch: obj.ch
+	};
+}
 
-	// cm.markText();
+function _replaceSelectionWithText(cm, text, mark) {
+	var start = cloneCursor(cm.getCursor("start"));
+	var end = cloneCursor(cm.getCursor("end"));
 
 	cm.replaceRange(text, start, end, cm.getCursor());
 
 	end.ch = start.ch + text.length;
-	// cm.markText(start, end, mark);
+	cm.markText(start, end, mark);
 	cm.focus();
 }
 
@@ -1138,6 +1144,7 @@ function SimpleMDE(options) {
 		options.tagsbar.push({
 			name: obj.name,
 			description: obj.description,
+			group: obj.group,
 			action: addText
 		});
 	}
@@ -1254,16 +1261,8 @@ SimpleMDE.prototype.render = function(el) {
 		extraKeys: keyMaps,
 		lineWrapping: (options.lineWrapping === false) ? false : true,
 		allowDropFileTypes: ["text/plain"],
-		placeholder: options.placeholder || el.getAttribute("placeholder") || "",
 		styleSelectedText: (options.styleSelectedText != undefined) ? options.styleSelectedText : true
 	});
-
-	if(options.forceSync === true) {
-		var cm = this.codemirror;
-		cm.on("change", function() {
-			cm.save();
-		});
-	}
 
 	this.gui = {};
 
@@ -1390,7 +1389,11 @@ SimpleMDE.prototype.createToolbar = function(items) {
 function createAddTag(self, item) {
 	return function(e) {
 		e.preventDefault();
-		item.action(self, "${" + item.name + "}", "");
+		var markOptions = {
+			className: "placeholder-class",
+			atomic: true
+		};
+		item.action(self, "${" + item.name + "}", markOptions);
 	};
 }
 
@@ -1409,7 +1412,7 @@ SimpleMDE.prototype.createTagsbar = function(items) {
 	self.toolbar = items;
 
 	for(var i = 0; i < items.length; i++) {
-		var el = createPlaceholder(items[i].description);
+		var el = createPlaceholder(items[i].description, items[i].group);
 		toolbarData[items[i].name] = el;
 		bar.appendChild(el);
 
