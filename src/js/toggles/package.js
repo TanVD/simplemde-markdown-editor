@@ -1,0 +1,20 @@
+var text = require("./addText");
+var draw = require("./draw");
+var heading = require("./heading");
+var line = require("./line");
+var preview = require("./preview");
+var style = require("./textStyle");
+var commandStack = require("./commandStack");
+
+module.exports.addText = text.addText;
+module.exports.drawImage = draw.drawImage;
+module.exports.drawLink = draw.drawLink;
+module.exports.toggleHeadingSmaller = heading.toggleHeadingSmaller;
+module.exports.toggleBlockquote = line.toggleBlockquote;
+module.exports.toggleOrderedList = line.toggleOrderedList;
+module.exports.toggleUnorderedList = line.toggleUnorderedList;
+module.exports.togglePreview = preview.togglePreview;
+module.exports.toggleBold = style.toggleBold;
+module.exports.toggleItalic = style.toggleItalic;
+module.exports.undo = commandStack.undo;
+module.exports.redo = commandStack.redo;

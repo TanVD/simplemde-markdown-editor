@@ -228,7 +228,7 @@
     content: 'characters: '
 }
 
-p.tagcloud01 {
+p.tag-class {
     height: 28px;
     text-align: justify;
     line-height: 28px;
@@ -246,7 +246,7 @@ p.tagcloud01 {
     transition: .2s;
 }
 
-p.tagcloud01:hover {
+p.tag-class:hover {
     background-color: #3498db;
     border: 1px solid #3498db;
     color: #fff;

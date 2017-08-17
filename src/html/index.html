@@ -1,0 +1,32 @@
+<html>
+<body>
+<link href="../../debug/simplemde.css" rel="stylesheet" type="text/css">
+<script type="text/javascript">
+    function getSimpleMdeOptions(id) {
+        if (id === "body") {
+            return {
+                isToolsbarEnabled: true,
+                isTagsbarEnabled: true,
+                currentSegment: [{
+                    "name": "DispCard",
+                    "description": "Display Card",
+                    "group": "tag-group-text"
+                }],
+                isSmallSize: false,
+                currentMode: "HTML"
+            };
+        }
+
+    }
+</script>
+<script type="text/javascript" src="../../debug/simplemde.js"> </script>
+
+<textarea id="body" name="body" class="js-simplemde-create"></textarea>
+
+<script>
+    var el = document.getElementById("body");
+    new SimpleMDE({element: el})
+</script>
+
+</body>
+</html>
