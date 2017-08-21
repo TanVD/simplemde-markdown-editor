@@ -1,6 +1,12 @@
 var toMarkdown = require("to-markdown");
 var $ = require("jquery");
+var modes = require("../mode/package");
 
+/**
+ * Switches between spellchecking mode with HTML highlighting and
+ * spellchecking mode with Markdown rendering/hihglighting.
+ * @param editor
+ */
 function switchMode(editor) {
     if (editor.options.currentMode === "HTML") {
         fromHTML(editor);
@@ -13,18 +19,19 @@ function toHTML(editor) {
     if (editor.options.currentMode === "Markdown") {
         var cm = editor.codemirror;
         var htmlText = editor.options.previewRender(editor.value());
-        var htmlMode = {
-            name: "xml",
-            htmlMode: true
-        };
         cm.setValue("");
         cm.clearHistory();
-        cm.setOption("mode", htmlMode);
+        cm.setOption("mode", modes.spellCheckMode);
+        cm.setOption("backdrop", modes.htmlMode);
         cm.setValue(htmlText);
         editor.options.currentMode = "HTML";
     }
 }
 
+/**
+ * Save HTML into "${editorId}Html" field (rendering HTML)
+ * @param editor
+ */
 function saveHTML(editor) {
     var htmlText = "";
     if (editor.options.currentMode === "Markdown") {
@@ -41,12 +48,10 @@ function fromHTML(editor) {
         var markdownText = toMarkdown(editor.value(), {
             gfm: true
         });
-        var markdownMode = editor.options.parsingConfig;
-        markdownMode.name = "gfm";
-        markdownMode.gitHubSpice = false;
         cm.setValue("");
         cm.clearHistory();
-        cm.setOption("mode", markdownMode);
+        cm.setOption("mode", modes.spellCheckMode);
+        cm.setOption("backdrop", modes.markdownMode);
         cm.setValue(markdownText);
         editor.options.currentMode = "Markdown";
     }
@@ -54,5 +59,6 @@ function fromHTML(editor) {
 
 module.exports.switchMode = switchMode;
 module.exports.toHTML = toHTML;
-module.exports.saveHTML = saveHTML;
 module.exports.fromHTML = fromHTML;
+module.exports.saveHTML = saveHTML;
+

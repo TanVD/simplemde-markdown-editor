@@ -1,7 +1,7 @@
 /**
  * The state of CodeMirror at the given position.
  */
-getState = function getState(cm, pos) {
+function getState(cm, pos) {
     pos = pos || cm.getCursor("start");
     var stat = cm.getTokenAt(pos);
     if (!stat.type) return {};
@@ -40,17 +40,17 @@ getState = function getState(cm, pos) {
         }
     }
     return ret;
-};
+}
 
 /**
  * Utility clone function for CodeMirror Cursor
  **/
-cloneCursor = function cloneCursor(obj) {
+function cloneCursor(obj) {
     return {
         line: obj.line,
         ch: obj.ch
     };
-};
+}
 
 module.exports.cloneCursor = cloneCursor;
 module.exports.getState = getState;

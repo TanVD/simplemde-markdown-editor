@@ -1,7 +1,7 @@
 /***
  * Merge the properties of one object into another.
  */
-_mergeProperties = function _mergeProperties(target, source) {
+function _mergeProperties(target, source) {
     for (var property in source) {
         if (source.hasOwnProperty(property)) {
             if (source[property] instanceof Array) {
@@ -19,6 +19,6 @@ _mergeProperties = function _mergeProperties(target, source) {
     }
 
     return target;
-};
+}
 
 module.exports.mergeProperties = _mergeProperties;

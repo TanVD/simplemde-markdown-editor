@@ -3,7 +3,7 @@
 var CodeMirror = require("codemirror");
 require("codemirror/addon/edit/continuelist.js");
 
-//Tablist packge
+//Tablist package
 require("./codemirror/tablist");
 
 //Utils package
@@ -12,6 +12,7 @@ var utils = require("./utils/package");
 //Extensions package
 var tagsbar = require("./extensions/tagsbar");
 var html = require("./extensions/htmlMode");
+var CodeMirrorSpellChecker = require("./extensions/spellcheck");
 
 //Toggles package
 var toggles = require("./toggles/package");
@@ -28,7 +29,7 @@ require("codemirror/addon/selection/mark-selection.js");
 require("codemirror/mode/gfm/gfm.js");
 require("codemirror/mode/xml/xml.js");
 
-//Converters packge
+//Converters package
 var marked = require("marked");
 
 
@@ -96,8 +97,8 @@ function SimpleMDE(options) {
 	//Handle tagsbar
 	options.tagsbar = [];
 
-	for(var index = 0; index < options.currentSegment.length; index++) {
-		var obj = options.currentSegment[index];
+	for(var index = 0; index < options.placeholders.length; index++) {
+		var obj = options.placeholders[index];
 		options.tagsbar.push({
 			name: obj.name,
 			description: obj.description,
@@ -112,12 +113,11 @@ function SimpleMDE(options) {
 	// Loop over the built in buttons, to get the preferred order
 	for(var key in toolbar.toolbarBuiltInButtons) {
 		if(toolbar.toolbarBuiltInButtons.hasOwnProperty(key)) {
-			if(key.indexOf("separator-") != -1) {
+			if(key.indexOf("separator-") !== -1) {
 				options.toolbar.push("|");
 			}
 
-			if(toolbar.toolbarBuiltInButtons[key].default === true ||
-				(options.showIcons && options.showIcons.constructor === Array && options.showIcons.indexOf(key) != -1)) {
+			if(toolbar.toolbarBuiltInButtons[key].default === true) {
 				options.toolbar.push(key);
 			}
 		}
@@ -163,29 +163,10 @@ function SimpleMDE(options) {
  */
 SimpleMDE.prototype.markdown = function(text) {
 	if(marked) {
-		// Initialize
-		var markedOptions = {};
-
-
-		// Update options
-		if(this.options && this.options.renderingConfig && this.options.renderingConfig.singleLineBreaks === false) {
-			markedOptions.breaks = false;
-		} else {
-			markedOptions.breaks = true;
-		}
-
-		if(this.options && this.options.renderingConfig && this.options.renderingConfig.codeSyntaxHighlighting === true && window.hljs) {
-			markedOptions.highlight = function(code) {
-				return window.hljs.highlightAuto(code).value;
-			};
-		}
-
-
-		// Set options
+		var markedOptions = {
+			breaks: true
+		};
 		marked.setOptions(markedOptions);
-
-
-		// Return
 		return marked(text);
 	}
 };
@@ -204,12 +185,18 @@ SimpleMDE.prototype.render = function(el) {
 
 	var keyMaps = {};
 
-	var mode = options.parsingConfig;
-	mode.name = "gfm";
-	mode.gitHubSpice = false;
+	var mode = "spell-checker";
+	var backdrop = options.parsingConfig;
+	backdrop.name = "gfm";
+	backdrop.gitHubSpice = false;
+
+	CodeMirrorSpellChecker({
+		codeMirrorInstance: CodeMirror
+	}, options.placeholders);
 
 	this.codemirror = CodeMirror.fromTextArea(el, {
 		mode: mode,
+		backdrop: backdrop,
 		theme: "paper",
 		tabSize: (options.tabSize !== undefined) ? options.tabSize : 2,
 		indentUnit: (options.tabSize !== undefined) ? options.tabSize : 2,
@@ -234,7 +221,6 @@ SimpleMDE.prototype.render = function(el) {
 	this._rendered = this.element;
 
 	if(this.options.isSmallSize) {
-		this.options.isSmall = true;
 		this.codemirror.getWrapperElement().className += " CodeMirror-small";
 	}
 

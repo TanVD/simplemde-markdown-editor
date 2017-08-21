@@ -86,19 +86,19 @@ var toolbarBuiltInButtons = {
     },
     "separator-5": {
         name: "separator-5"
+    },
+    "undo": {
+        name: "undo",
+        action: toggles.undo,
+        className: "fa fa-undo no-disable",
+        title: "Undo"
+    },
+    "redo": {
+        name: "redo",
+        action: toggles.redo,
+        className: "fa fa-repeat no-disable",
+        title: "Redo"
     }
-    // "undo": {
-    //     name: "undo",
-    //     action: toggles.undo,
-    //     className: "fa fa-undo no-disable",
-    //     title: "Undo"
-    // },
-    // "redo": {
-    //     name: "redo",
-    //     action: toggles.redo,
-    //     className: "fa fa-repeat no-disable",
-    //     title: "Redo"
-    // }
 };
 
 module.exports.toolbarBuiltInButtons = toolbarBuiltInButtons;

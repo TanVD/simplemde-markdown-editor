@@ -1,5 +1,5 @@
-var utils = require("./Utils");
-var cmUtils = require("./CodemirrorUtils");
+var utils = require("./utils");
+var cmUtils = require("./codemirrorUtils");
 
 module.exports.mergeProperties = utils.mergeProperties;
 module.exports.cloneCursor = cmUtils.cloneCursor;

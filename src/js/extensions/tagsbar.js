@@ -20,6 +20,9 @@ function createPlaceholder(text, group) {
     return el;
 }
 
+/**
+ * Create tagsbar div element from specified items
+ */
 function createTagsbar(self, items) {
     items = items || self.options.tagsbar;
 

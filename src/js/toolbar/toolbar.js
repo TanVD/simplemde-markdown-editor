@@ -1,5 +1,5 @@
 var buttons = require("./buttons");
-var cmUtils = require("../utils/CodemirrorUtils");
+var cmUtils = require("../utils/codemirrorUtils");
 
 /**
  * Create icon element for toolbar.
@@ -22,7 +22,7 @@ function createSep() {
 }
 
 
-function createToolbar (self, items) {
+function createToolbar(self, items) {
     items = items || self.options.toolbar;
 
     if (!items || items.length === 0) {
@@ -42,18 +42,12 @@ function createToolbar (self, items) {
     self.toolbar = items;
 
     for (i = 0; i < items.length; i++) {
-        if (items[i].name === "guide" && self.options.toolbarGuideIcon === false)
-            continue;
-
-        if (self.options.hideIcons && self.options.hideIcons.indexOf(items[i].name) !== -1)
-            continue;
-
         // Don't include trailing separators
         if (items[i] === "|") {
             var nonSeparatorIconsFollow = false;
 
             for (var x = (i + 1); x < items.length; x++) {
-                if (items[x] !== "|" && (!self.options.hideIcons || self.options.hideIcons.indexOf(items[x].name) === -1)) {
+                if (items[x] !== "|") {
                     nonSeparatorIconsFollow = true;
                 }
             }

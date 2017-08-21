@@ -6,38 +6,6 @@ function toggleHeadingSmaller(editor) {
     _toggleHeading(cm, "smaller");
 }
 
-// /**
-//  * Action for toggling heading size: normal -> h6 -> h5 -> h4 -> h3 -> h2 -> h1 -> normal
-//  */
-// function toggleHeadingBigger(editor) {
-//     var cm = editor.codemirror;
-//     _toggleHeading(cm, "bigger");
-// }
-//
-// /**
-//  * Action for toggling heading size 1
-//  */
-// function toggleHeading1(editor) {
-//     var cm = editor.codemirror;
-//     _toggleHeading(cm, undefined, 1);
-// }
-//
-// /**
-//  * Action for toggling heading size 2
-//  */
-// function toggleHeading2(editor) {
-//     var cm = editor.codemirror;
-//     _toggleHeading(cm, undefined, 2);
-// }
-//
-// /**
-//  * Action for toggling heading size 3
-//  */
-// function toggleHeading3(editor) {
-//     var cm = editor.codemirror;
-//     _toggleHeading(cm, undefined, 3);
-// }
-
 function _toggleHeading(cm, direction, size) {
     if (/editor-preview-active/.test(cm.getWrapperElement().lastChild.className))
         return;
