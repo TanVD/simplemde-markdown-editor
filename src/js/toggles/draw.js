@@ -8,12 +8,6 @@ function drawLink(editor) {
     var stat = utils.getState(cm);
     var options = editor.options;
     var url = "http://";
-    if (this.options.promptURLs) {
-        url = prompt(options.promptTexts.link);
-        if (!url) {
-            return false;
-        }
-    }
     _replaceSelection(cm, stat.link, options.insertTexts.link, url);
 }
 
@@ -25,12 +19,6 @@ function drawImage(editor) {
     var stat = utils.getState(cm);
     var options = editor.options;
     var url = "http://";
-    if (this.options.promptURLs) {
-        url = prompt(options.promptTexts.image);
-        if (!url) {
-            return false;
-        }
-    }
     _replaceSelection(cm, stat.image, options.insertTexts.image, url);
 }
 
