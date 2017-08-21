@@ -1,10 +1,6 @@
 function createAddTag(self, item) {
     return function () {
-        var markOptions = {
-            className: "placeholder-class",
-            atomic: true
-        };
-        item.action(self, "${" + item.name + "}", markOptions);
+        item.action(self, "${" + item.name + "}", {});
     };
 }
 
