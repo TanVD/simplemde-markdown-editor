@@ -42,6 +42,18 @@ function saveHTML(editor) {
     $("input[name='" + editor.element.id + "Html']").val(htmlText);
 }
 
+function saveMarkdown(editor) {
+    var markdownText = "";
+    if (editor.options.currentMode === "Markdown") {
+        markdownText = editor.options.previewRender(editor.value());
+    } else {
+        markdownText = toMarkdown(editor.value(), {
+            gfm: true
+        });
+    }
+    $("input[name='" + editor.element.id + "Markdown']").val(markdownText);
+}
+
 function fromHTML(editor) {
     if (editor.options.currentMode === "HTML") {
         var cm = editor.codemirror;
@@ -61,4 +73,5 @@ module.exports.switchMode = switchMode;
 module.exports.toHTML = toHTML;
 module.exports.fromHTML = fromHTML;
 module.exports.saveHTML = saveHTML;
+module.exports.saveMarkdown = saveMarkdown;
 

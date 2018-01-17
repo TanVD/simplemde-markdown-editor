@@ -39,10 +39,10 @@ function CodeMirrorSpellChecker(options, placeholders) {
     // Define the new mode
     options.codeMirrorInstance.defineMode("spell-checker", function (config) {
         var placeholdersCheck = function check(text) {
-            var startsAsPlaceholder = text.startsWith("\${");
-            var endsAsPlaceholder = text.endsWith("}");
-            if (startsAsPlaceholder && endsAsPlaceholder) {
-                var placeholder = text.slice("${".length, text.length - "}".length);
+            var startsAsPlaceholder = text.startsWith("%");
+            var endsAsPlaceholder = text.endsWith("%");
+            if (startsAsPlaceholder && endsAsPlaceholder && text !== "%") {
+                var placeholder = text.slice("%".length, text.length - "%".length);
                 if (placeholderNames.includes(placeholder)) {
                     return Token.placeholder;
                 } else {

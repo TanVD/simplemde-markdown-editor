@@ -14,6 +14,9 @@ var tagsbar = require("./extensions/tagsbar");
 var html = require("./extensions/htmlMode");
 var CodeMirrorSpellChecker = require("./extensions/spellcheck");
 
+//Modes package
+var modes = require("./mode/package");
+
 //Toggles package
 var toggles = require("./toggles/package");
 
@@ -113,6 +116,10 @@ function SimpleMDE(options) {
 	// Loop over the built in buttons, to get the preferred order
 	for(var key in toolbar.toolbarBuiltInButtons) {
 		if(toolbar.toolbarBuiltInButtons.hasOwnProperty(key)) {
+			if(toolbar.toolbarBuiltInButtons[key].name === "switchMode" && !options.isHtmlEnabled) {
+				continue;
+			}
+
 			if(key.indexOf("separator-") !== -1) {
 				options.toolbar.push("|");
 			}
@@ -164,6 +171,7 @@ function SimpleMDE(options) {
 SimpleMDE.prototype.markdown = function(text) {
 	if(marked) {
 		var markedOptions = {
+			gfm: true,
 			breaks: true
 		};
 		marked.setOptions(markedOptions);
@@ -185,18 +193,13 @@ SimpleMDE.prototype.render = function(el) {
 
 	var keyMaps = {};
 
-	var mode = "spell-checker";
-	var backdrop = options.parsingConfig;
-	backdrop.name = "gfm";
-	backdrop.gitHubSpice = false;
-
 	CodeMirrorSpellChecker({
 		codeMirrorInstance: CodeMirror
 	}, options.placeholders);
 
 	this.codemirror = CodeMirror.fromTextArea(el, {
-		mode: mode,
-		backdrop: backdrop,
+		mode: modes.spellCheckMode,
+		backdrop: modes.markdownMode,
 		theme: "paper",
 		tabSize: (options.tabSize !== undefined) ? options.tabSize : 2,
 		indentUnit: (options.tabSize !== undefined) ? options.tabSize : 2,
@@ -252,5 +255,6 @@ SimpleMDE.prototype.value = function(val) {
 
 
 SimpleMDE.saveHTML = html.saveHTML;
+SimpleMDE.saveMarkdown = html.saveMarkdown;
 
 module.exports = SimpleMDE;
