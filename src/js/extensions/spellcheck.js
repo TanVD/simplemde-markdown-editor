@@ -56,7 +56,7 @@ function CodeMirrorSpellChecker(options, placeholders) {
         };
 
         // Define what separates a word
-        var rx_word = "!\"#%&()*+,-./:;<=>?@[\\]^_`|~ ";
+        var rx_word = "!\"#&()*+,-./:;<=>?@[\\]^_`|~ ";
 
 
         // Create the overlay and such
@@ -71,18 +71,20 @@ function CodeMirrorSpellChecker(options, placeholders) {
                     return null;
                 }
 
-                var includeCurlyBracket = false;
+                var startPlaceholder = false;
                 while ((ch = stream.peek()) != null && !rx_word.includes(ch)) {
-                    if (ch === "$") {
-                        if (stream.peek() === "{") {
-                            includeCurlyBracket = true;
-                        }
-                    }
                     word += ch;
-                    stream.next();
-                    if (includeCurlyBracket && ch === "}") {
+                    if (startPlaceholder && ch === "%") {
                         break;
                     }
+                    if (ch === "%") {
+                        startPlaceholder = true;
+                    }
+                    stream.next();
+                }
+
+                if (startPlaceholder && rx_word.includes(ch)) {
+                    return null;
                 }
 
                 var tokenType = placeholdersCheck(word);
