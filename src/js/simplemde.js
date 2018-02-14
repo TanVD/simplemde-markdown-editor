@@ -3,6 +3,11 @@
 var CodeMirror = require("codemirror");
 require("codemirror/addon/edit/continuelist.js");
 
+//Requires for AutoComplete
+require("codemirror/addon/hint/show-hint.js");
+require("codemirror/addon/hint/css-hint.js");
+// require("codemirror/addon/hint/show-hint.css");
+
 //Tablist package
 require("./codemirror/tablist");
 
@@ -191,7 +196,9 @@ SimpleMDE.prototype.render = function(el) {
 	this.element = el;
 	var options = this.options;
 
-	var keyMaps = {};
+	var keyMaps = {
+		"Ctrl-Space": "autocomplete"
+	};
 
 	CodeMirrorSpellChecker({
 		codeMirrorInstance: CodeMirror

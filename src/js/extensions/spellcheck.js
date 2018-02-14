@@ -39,10 +39,10 @@ function CodeMirrorSpellChecker(options, placeholders) {
     // Define the new mode
     options.codeMirrorInstance.defineMode("spell-checker", function (config) {
         var placeholdersCheck = function check(text) {
-            var startsAsPlaceholder = text.startsWith("%");
-            var endsAsPlaceholder = text.endsWith("%");
-            if (startsAsPlaceholder && endsAsPlaceholder && text !== "%") {
-                var placeholder = text.slice("%".length, text.length - "%".length);
+            var startsAsPlaceholder = text.startsWith("\${");
+            var endsAsPlaceholder = text.endsWith("}");
+            if (startsAsPlaceholder && endsAsPlaceholder) {
+                var placeholder = text.slice("\${".length, text.length - "}".length);
                 if (placeholderNames.includes(placeholder)) {
                     return Token.placeholder;
                 } else {
@@ -56,7 +56,7 @@ function CodeMirrorSpellChecker(options, placeholders) {
         };
 
         // Define what separates a word
-        var rx_word = "!\"#&()*+,-./:;<=>?@[\\]^_`|~ ";
+        var rx_word = "!\"#%&()*+,-./:;<=>?@[\\]^_`|~ ";
 
 
         // Create the overlay and such
@@ -71,20 +71,21 @@ function CodeMirrorSpellChecker(options, placeholders) {
                     return null;
                 }
 
-                var startPlaceholder = false;
+                var includeCurlyBracket = false;
                 while ((ch = stream.peek()) != null && !rx_word.includes(ch)) {
+                    if (ch === "$") {
+                        word += ch;
+                        stream.next();
+                        ch = stream.peek();
+                        if (ch === "{") {
+                            includeCurlyBracket = true;
+                        }
+                    }
                     word += ch;
-                    if (startPlaceholder && ch === "%") {
+                    stream.next();
+                    if (includeCurlyBracket && ch === "}") {
                         break;
                     }
-                    if (ch === "%") {
-                        startPlaceholder = true;
-                    }
-                    stream.next();
-                }
-
-                if (startPlaceholder && rx_word.includes(ch)) {
-                    return null;
                 }
 
                 var tokenType = placeholdersCheck(word);
