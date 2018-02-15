@@ -29,7 +29,7 @@
   "devDependencies": {
     "browserify": "*",
     "debug": "*",
-    "eslint": "*",
+    "eslint": "^4.17.0",
     "gulp": "^3.9.1",
     "gulp-clean-css": "*",
     "gulp-concat": "*",

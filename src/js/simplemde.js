@@ -3,11 +3,6 @@
 var CodeMirror = require("codemirror");
 require("codemirror/addon/edit/continuelist.js");
 
-//Requires for AutoComplete
-require("codemirror/addon/hint/show-hint.js");
-require("codemirror/addon/hint/css-hint.js");
-// require("codemirror/addon/hint/show-hint.css");
-
 //Tablist package
 require("./codemirror/tablist");
 
@@ -18,6 +13,7 @@ var utils = require("./utils/package");
 var tagsbar = require("./extensions/tagsbar");
 var html = require("./extensions/htmlMode");
 var CodeMirrorSpellChecker = require("./extensions/spellcheck");
+var autocomplete = require("./extensions/autocomplete");
 
 //Modes package
 var modes = require("./mode/package");
@@ -80,6 +76,11 @@ function SimpleMDE(options) {
 
 	// Set default options for parsing config
 	options = extend(options, getSimpleMdeOptions(options.element.id) || {});
+
+	if(options.enableAutocompletion) {
+		CodeMirror.hint.markdown = autocomplete.createHints(options.autocompleteHints);
+		CodeMirror.hint.html = autocomplete.createHints(options.autocompleteHints);
+	}
 
 
 	// Used later to refer to it"s parent
@@ -237,6 +238,10 @@ SimpleMDE.prototype.render = function(el) {
 	if(this.options.currentMode === "HTML") {
 		html.fromHTML(this);
 		this.options.currentMode = "Markdown";
+	}
+
+	if(this.options.enableAutocompletion) {
+		this.codemirror.on("keyup", autocomplete.keyUpAutocompleteHandler);
 	}
 
 

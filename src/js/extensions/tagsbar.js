@@ -1,6 +1,6 @@
 function createAddTag(self, item) {
     return function () {
-        item.action(self, "%" + item.name + "%", {});
+        item.action(self, "\$\{" + item.name + "\}", {});
     };
 }
 

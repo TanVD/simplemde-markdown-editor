@@ -1,6 +1,5 @@
 dist/*
 debug/*
-gulpfile.js
 localtesting/
 node_modules/
 bower_components/
