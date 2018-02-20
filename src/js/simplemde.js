@@ -195,6 +195,8 @@ SimpleMDE.prototype.renderPlain = function(el) {
 		styleSelectedText: (options.styleSelectedText !== undefined) ? options.styleSelectedText : true
 	});
 
+	options.currentMode = options.startMode;
+
 	this.gui = {};
 
 	if(this.options.isToolsbarEnabled) {

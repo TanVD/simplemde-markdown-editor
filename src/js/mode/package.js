@@ -8,9 +8,9 @@ module.exports.spellCheckMode = spellCheckerMode.spellCheckMode;
 module.exports.getMode = function (name) {
     switch (name) {
         case "Markdown":
-            return markdownMode;
+            return markdownMode.markdownMode;
         case "HTML":
-            return htmlMode;
+            return htmlMode.htmlMode;
         default:
             return null;
     }

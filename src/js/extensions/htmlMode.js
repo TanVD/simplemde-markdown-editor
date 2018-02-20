@@ -2,6 +2,16 @@ var toMarkdown = require("to-markdown");
 var $ = require("jquery");
 var modes = require("../mode/package");
 
+var markdownRenderer = function (text) {
+    if (marked) {
+        var markedOptions = {
+            gfm: false
+        };
+        marked.setOptions(markedOptions);
+        return marked(text);
+    }
+};
+
 /**
  * Switches between spellchecking mode with HTML highlighting and
  * spellchecking mode with Markdown rendering/hihglighting.
@@ -18,7 +28,7 @@ function switchMode(editor) {
 function toHTML(editor) {
     if (editor.options.currentMode === "Markdown") {
         var cm = editor.codemirror;
-        var htmlText = editor.options.previewRender(editor.value());
+        var htmlText = markdownRenderer(editor.value());
         cm.setValue("");
         cm.clearHistory();
         cm.setOption("mode", modes.spellCheckMode);
@@ -35,7 +45,7 @@ function toHTML(editor) {
 function saveHTML(editor) {
     var htmlText = "";
     if (editor.options.currentMode === "Markdown") {
-        htmlText = editor.options.previewRender(editor.value());
+        htmlText = markdownRenderer(editor.value());
     } else {
         htmlText = editor.value();
     }
@@ -45,7 +55,7 @@ function saveHTML(editor) {
 function saveMarkdown(editor) {
     var markdownText = "";
     if (editor.options.currentMode === "Markdown") {
-        markdownText = editor.options.previewRender(editor.value());
+        markdownText = markdownRenderer(editor.value());
     } else {
         markdownText = toMarkdown(editor.value(), {
             gfm: true
