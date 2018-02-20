@@ -13,6 +13,9 @@ function escapeRegExp(str) {
 
 function createHints(list) {
     return function (editor) {
+        var placeholderList = list.map(function callback(currentValue, index, array) {
+            return "${" + currentValue.name + "}";
+        });
         var cursor = editor.getCursor();
         var currentLine = editor.getLine(cursor.line);
         var start = cursor.ch;
@@ -22,7 +25,7 @@ function createHints(list) {
         var curWord = start !== end && currentLine.slice(start, end);
         var regex = new RegExp("^" + escapeRegExp(curWord), "i");
         return {
-            list: (!curWord ? list : list.filter(function (item) {
+            list: (!curWord ? placeholderList : placeholderList.filter(function (item) {
                 return item.match(regex);
             })).sort(),
             from: CodeMirror.Pos(cursor.line, start),
@@ -85,8 +88,6 @@ var excludedTriggerKeys = {
 
 
 function keyUpAutocompleteHandler(cm, event) {
-    if(!cm.state.completionActive && /*Enables keyboard navigation in autocomplete list*/
-        event.keyCode !== 13) { /*Enter - do not open autocomplete list just after item has been selected in it*/
         var cursor = cm.getCursor();
         var currentLine = cm.getLine(cursor.line);
         var start = cursor.ch;
@@ -95,7 +96,6 @@ function keyUpAutocompleteHandler(cm, event) {
             && currentLine.charAt(start) === "\$") {
             cm.showHint({completeSingle: false});
         }
-    }
 }
 
 module.exports.createHints = createHints;

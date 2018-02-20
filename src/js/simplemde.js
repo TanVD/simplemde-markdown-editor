@@ -33,10 +33,6 @@ require("codemirror/addon/selection/mark-selection.js");
 require("codemirror/mode/gfm/gfm.js");
 require("codemirror/mode/xml/xml.js");
 
-//Converters package
-var marked = require("marked");
-
-
 // Merge an arbitrary number of objects into one.
 function extend(target) {
 	for(var i = 1; i < arguments.length; i++) {
@@ -78,8 +74,9 @@ function SimpleMDE(options) {
 	options = extend(options, getSimpleMdeOptions(options.element.id) || {});
 
 	if(options.enableAutocompletion) {
-		CodeMirror.hint.markdown = autocomplete.createHints(options.autocompleteHints);
-		CodeMirror.hint.html = autocomplete.createHints(options.autocompleteHints);
+		CodeMirror.registerGlobalHelper("hint", "placeholders", function(a, b) {
+			return true;
+		}, autocomplete.createHints(options.placeholders));
 	}
 
 
@@ -122,7 +119,7 @@ function SimpleMDE(options) {
 	// Loop over the built in buttons, to get the preferred order
 	for(var key in toolbar.toolbarBuiltInButtons) {
 		if(toolbar.toolbarBuiltInButtons.hasOwnProperty(key)) {
-			if(toolbar.toolbarBuiltInButtons[key].name === "switchMode" && !options.isHtmlEnabled) {
+			if(toolbar.toolbarBuiltInButtons[key].name === "switchMode" && options.modes.length !== 2) {
 				continue;
 			}
 
@@ -135,14 +132,6 @@ function SimpleMDE(options) {
 			}
 		}
 	}
-
-
-	// Add default preview rendering function
-	options.previewRender = function(plainText) {
-		// Note: "this" refers to the options object
-		return this.parent.markdown(plainText);
-	};
-
 
 	// Set default options for parsing config
 	options.parsingConfig = extend({
@@ -165,30 +154,17 @@ function SimpleMDE(options) {
 	this.options = options;
 
 
-	// Auto render
-	this.render(this.element);
+	// Auto renderPlain
+	this.renderPlain(this.element);
 
 	SimpleMDE.instances.push(this);
 }
 
-/**
- * Default markdown render.
- */
-SimpleMDE.prototype.markdown = function(text) {
-	if(marked) {
-		var markedOptions = {
-			gfm: true,
-			breaks: true
-		};
-		marked.setOptions(markedOptions);
-		return marked(text);
-	}
-};
 
 /**
  * Render editor to the given element.
  */
-SimpleMDE.prototype.render = function(el) {
+SimpleMDE.prototype.renderPlain = function(el) {
 	if(this._rendered && this._rendered === el) {
 		// Already rendered.
 		return;
@@ -197,24 +173,23 @@ SimpleMDE.prototype.render = function(el) {
 	this.element = el;
 	var options = this.options;
 
-	var keyMaps = {
-		"Ctrl-Space": "autocomplete"
-	};
-
+	//Enable placeholders checking
 	CodeMirrorSpellChecker({
 		codeMirrorInstance: CodeMirror
 	}, options.placeholders);
 
 	this.codemirror = CodeMirror.fromTextArea(el, {
 		mode: modes.spellCheckMode,
-		backdrop: modes.markdownMode,
+		backdrop: modes.getMode(options.startMode),
 		theme: "paper",
 		tabSize: (options.tabSize !== undefined) ? options.tabSize : 2,
 		indentUnit: (options.tabSize !== undefined) ? options.tabSize : 2,
 		indentWithTabs: (options.indentWithTabs !== false),
 		lineNumbers: false,
 		autofocus: (options.autofocus === true),
-		extraKeys: keyMaps,
+		extraKeys: {
+			"Ctrl-Space": "autocomplete"
+		},
 		lineWrapping: (options.lineWrapping !== false),
 		allowDropFileTypes: ["text/plain"],
 		styleSelectedText: (options.styleSelectedText !== undefined) ? options.styleSelectedText : true
@@ -231,15 +206,26 @@ SimpleMDE.prototype.render = function(el) {
 
 	this._rendered = this.element;
 
-	if(this.options.isSmallSize) {
-		this.codemirror.getWrapperElement().className += " CodeMirror-small";
+	//Set size of CodeMirror editor
+	switch(this.options.size) {
+		case("Small"):
+			{
+				this.codemirror.getWrapperElement().className += " CodeMirror-small";
+				break;
+			}
+		case("Standard"):
+			{
+				this.codemirror.getWrapperElement().className += " CodeMirror-standard";
+				break;
+			}
+		default:
+			{
+				throw "Unknown size of SimpleMde " + this.options.size;
+			}
 	}
 
-	if(this.options.currentMode === "HTML") {
-		html.fromHTML(this);
-		this.options.currentMode = "Markdown";
-	}
 
+	//Enable Autocompletion on Key Up
 	if(this.options.enableAutocompletion) {
 		this.codemirror.on("keyup", autocomplete.keyUpAutocompleteHandler);
 	}
