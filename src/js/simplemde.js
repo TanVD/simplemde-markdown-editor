@@ -195,6 +195,9 @@ SimpleMDE.prototype.renderPlain = function(el) {
 		styleSelectedText: (options.styleSelectedText !== undefined) ? options.styleSelectedText : true
 	});
 
+	//Add codemirror to textarea
+	this.element.codemirror = this.codemirror;
+
 	options.currentMode = options.startMode;
 
 	this.gui = {};
