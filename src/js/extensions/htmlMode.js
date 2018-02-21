@@ -1,6 +1,7 @@
 var toMarkdown = require("to-markdown");
 var $ = require("jquery");
 var modes = require("../mode/package");
+var marked = require("marked");
 
 var markdownRenderer = function (text) {
     if (marked) {
@@ -25,13 +26,28 @@ function switchMode(editor) {
     }
 }
 
+function fromHTML(editor) {
+    if (editor.options.currentMode === "HTML") {
+        var cm = editor.codemirror;
+        var markdownText = toMarkdown(editor.value(), {
+            gfm: false
+        });
+        cm.setValue("");
+        cm.clearHistory();
+        cm.setOption("mode", modes.spellCheckModeMarkdown);
+        cm.setOption("backdrop", modes.markdownMode);
+        cm.setValue(markdownText);
+        editor.options.currentMode = "Markdown";
+    }
+}
+
 function toHTML(editor) {
     if (editor.options.currentMode === "Markdown") {
         var cm = editor.codemirror;
         var htmlText = markdownRenderer(editor.value());
         cm.setValue("");
         cm.clearHistory();
-        cm.setOption("mode", modes.spellCheckMode);
+        cm.setOption("mode", modes.spellCheckModeHtml);
         cm.setOption("backdrop", modes.htmlMode);
         cm.setValue(htmlText);
         editor.options.currentMode = "HTML";
@@ -64,20 +80,7 @@ function saveMarkdown(editor) {
     $("input[name='" + editor.element.id + "Markdown']").val(markdownText);
 }
 
-function fromHTML(editor) {
-    if (editor.options.currentMode === "HTML") {
-        var cm = editor.codemirror;
-        var markdownText = toMarkdown(editor.value(), {
-            gfm: true
-        });
-        cm.setValue("");
-        cm.clearHistory();
-        cm.setOption("mode", modes.spellCheckMode);
-        cm.setOption("backdrop", modes.markdownMode);
-        cm.setValue(markdownText);
-        editor.options.currentMode = "Markdown";
-    }
-}
+
 
 module.exports.switchMode = switchMode;
 module.exports.toHTML = toHTML;

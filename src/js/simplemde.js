@@ -71,7 +71,7 @@ function SimpleMDE(options) {
 	options = options || {};
 
 	// Set default options for parsing config
-	options = extend(options, getSimpleMdeOptions(options.element.id) || {});
+	options = extend(options, JSON.parse(options.element.getAttribute("simpleMdeConfig")) || {});
 
 	if(options.enableAutocompletion) {
 		CodeMirror.registerGlobalHelper("hint", "placeholders", function(a, b) {
@@ -179,7 +179,7 @@ SimpleMDE.prototype.renderPlain = function(el) {
 	}, options.placeholders);
 
 	this.codemirror = CodeMirror.fromTextArea(el, {
-		mode: modes.spellCheckMode,
+		mode: modes.getSpellCheckMode(options.startMode),
 		backdrop: modes.getMode(options.startMode),
 		theme: "paper",
 		tabSize: (options.tabSize !== undefined) ? options.tabSize : 2,
