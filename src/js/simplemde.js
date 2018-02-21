@@ -15,6 +15,10 @@ var html = require("./extensions/htmlMode");
 var CodeMirrorSpellChecker = require("./extensions/spellcheck");
 var autocomplete = require("./extensions/autocomplete");
 
+//Renderers
+var toMarkdown = require("to-markdown");
+
+
 //Modes package
 var modes = require("./mode/package");
 
@@ -233,6 +237,23 @@ SimpleMDE.prototype.renderPlain = function(el) {
 	//Enable Autocompletion on Key Up
 	if(this.options.enableAutocompletion) {
 		this.codemirror.on("keyup", autocomplete.keyUpAutocompleteHandler);
+	}
+
+
+	if(this.options.inputTextMode !== this.options.currentMode) {
+		switch(this.options.inputTextMode) {
+			case "Markdown":
+				{
+					break;
+				}
+			case "HTML":
+				{
+					this.value(toMarkdown(this.value(), {
+						gfm: true
+					}));
+					break;
+				}
+		}
 	}
 
 
