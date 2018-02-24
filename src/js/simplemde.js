@@ -11,13 +11,10 @@ var utils = require("./utils/package");
 
 //Extensions package
 var tagsbar = require("./extensions/tagsbar");
-var html = require("./extensions/htmlMode");
-var CodeMirrorSpellChecker = require("./extensions/spellcheck");
+var spellchecker = require("./extensions/spellcheck");
 var autocomplete = require("./extensions/autocomplete");
 
-//Renderers
-var toMarkdown = require("to-markdown");
-
+var lang = require("./languages/languages");
 
 //Modes package
 var modes = require("./mode/package");
@@ -54,11 +51,6 @@ var insertTexts = {
 	horizontalRule: ["", "\n\n-----\n\n"]
 };
 
-var promptTexts = {
-	link: "URL for the link:",
-	image: "URL of the image:"
-};
-
 var blockStyles = {
 	"bold": "**",
 	"code": "```",
@@ -71,118 +63,61 @@ SimpleMDE.instances = [];
  * Interface of SimpleMDE.
  */
 function SimpleMDE(options) {
-	// Get options from predefined function
-	options = options || {};
-
 	// Set default options for parsing config
-	options = extend(options, JSON.parse(options.element.getAttribute("simpleMdeConfig")) || {});
-
-	if(options.enableAutocompletion) {
-		CodeMirror.registerGlobalHelper("hint", "placeholders", function(a, b) {
-			return true;
-		}, autocomplete.createHints(options.placeholders));
-	}
-
-
-	// Used later to refer to it"s parent
-	options.parent = this;
-
+	this.options = extend(options, JSON.parse(options.element.getAttribute("simpleMdeConfig")) || {});
 
 	// Auto download FA
-	var link = document.createElement("link");
-	link.rel = "stylesheet";
-	link.href = "https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css";
-	document.getElementsByTagName("head")[0].appendChild(link);
-
+	downloadFa();
 
 	// Find the textarea to use
 	if(options.element) {
 		this.element = options.element;
 	} else if(options.element === null) {
 		// This means that the element option was specified, but no element was found
-		console.log("SimpleMDE: Error. No element was found.");
+		console.log("SimpleMDE: Error. No textarea was found.");
 		return;
 	}
 
-	//Handle tagsbar
-	options.tagsbar = [];
+	initTexts(this);
 
-	for(var index = 0; index < options.placeholders.length; index++) {
-		var obj = options.placeholders[index];
-		options.tagsbar.push({
-			name: obj.name,
-			description: obj.description,
-			group: obj.group,
-			action: toggles.addText
-		});
-	}
-
-
-	// Handle toolbar
-	options.toolbar = [];
-	// Loop over the built in buttons, to get the preferred order
-	for(var key in toolbar.toolbarBuiltInButtons) {
-		if(toolbar.toolbarBuiltInButtons.hasOwnProperty(key)) {
-			if(toolbar.toolbarBuiltInButtons[key].name === "switchMode" && options.modes.length !== 2) {
-				continue;
-			}
-
-			if(key.indexOf("separator-") !== -1) {
-				options.toolbar.push("|");
-			}
-
-			if(toolbar.toolbarBuiltInButtons[key].default === true) {
-				options.toolbar.push(key);
-			}
-		}
-	}
-
-	// Set default options for parsing config
-	options.parsingConfig = extend({
-		highlightFormatting: true // needed for toggleCodeBlock to detect types of code
-	}, options.parsingConfig || {});
-
-
-	// Merging the insertTexts, with the given options
-	options.insertTexts = extend({}, insertTexts, options.insertTexts || {});
-
-
-	// Merging the promptTexts, with the given options
-	options.promptTexts = promptTexts;
-
-
-	// Merging the blockStyles, with the given options
-	options.blockStyles = extend({}, blockStyles, options.blockStyles || {});
-
-	// Update this options
-	this.options = options;
-
-
-	// Auto renderPlain
-	this.renderPlain(this.element);
+	// Auto render
+	this.render();
 
 	SimpleMDE.instances.push(this);
 }
 
+function readPlaceholders() {
+
+}
+
+function initTexts(editor) {
+	// Merging the insertTexts, with the given options
+	editor.options.insertTexts = extend({}, insertTexts, editor.options.insertTexts || {});
+
+	// Merging the blockStyles, with the given options
+	editor.options.blockStyles = extend({}, blockStyles, editor.options.blockStyles || {});
+}
+
+function downloadFa() {
+	var link = document.createElement("link");
+	link.rel = "stylesheet";
+	link.href = "https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css";
+	document.getElementsByTagName("head")[0].appendChild(link);
+}
 
 /**
  * Render editor to the given element.
  */
-SimpleMDE.prototype.renderPlain = function(el) {
-	if(this._rendered && this._rendered === el) {
-		// Already rendered.
+SimpleMDE.prototype.render = function() {
+	var options = this.options;
+
+	if(this._rendered && this._rendered === this.element) {
 		return;
 	}
 
-	this.element = el;
-	var options = this.options;
+	spellchecker.enable(CodeMirror, options.placeholders);
 
-	//Enable placeholders checking
-	CodeMirrorSpellChecker({
-		codeMirrorInstance: CodeMirror
-	}, options.placeholders);
-
-	this.codemirror = CodeMirror.fromTextArea(el, {
+	this.codemirror = CodeMirror.fromTextArea(this.element, {
 		mode: modes.getSpellCheckMode(options.startMode),
 		backdrop: modes.getMode(options.startMode),
 		theme: "paper",
@@ -199,69 +134,94 @@ SimpleMDE.prototype.renderPlain = function(el) {
 		styleSelectedText: (options.styleSelectedText !== undefined) ? options.styleSelectedText : true
 	});
 
-	//Add codemirror to textarea
+	//Add codemirror and simplemde to textarea
 	this.element.codemirror = this.codemirror;
+	this.element.simplemde = this;
 
 	options.currentMode = options.startMode;
 
 	this.gui = {};
-
 	if(this.options.isToolsbarEnabled) {
 		this.gui.toolbar = toolbar.createToolbar(this);
 	}
 	if(this.options.isTagsbarEnabled) {
+		this.tagsbar = [];
+		for(var index = 0; index < options.placeholders.length; index++) {
+			var obj = options.placeholders[index];
+			this.tagsbar.push({
+				name: obj.name,
+				description: obj.description,
+				group: obj.group,
+				action: toggles.addText
+			});
+		}
 		this.gui.tagsbar = tagsbar.createTagsbar(this);
 	}
 
-	this._rendered = this.element;
-
 	//Set size of CodeMirror editor
-	switch(this.options.size) {
-		case("Small"):
-			{
-				this.codemirror.getWrapperElement().className += " CodeMirror-small";
-				break;
-			}
-		case("Standard"):
-			{
-				this.codemirror.getWrapperElement().className += " CodeMirror-standard";
-				break;
-			}
-		default:
-			{
-				throw "Unknown size of SimpleMde " + this.options.size;
-			}
+	setSize(this);
+
+	if(options.enableAutocompletion) {
+		autocomplete.enable(this);
 	}
 
-
-	//Enable Autocompletion on Key Up
-	if(this.options.enableAutocompletion) {
-		this.codemirror.on("keyup", autocomplete.keyUpAutocompleteHandler);
-	}
+	//Move from inputTextMode to startMode
+	this.moveToStartMode();
 
 
-	if(this.options.inputTextMode !== this.options.currentMode) {
-		switch(this.options.inputTextMode) {
-			case "Markdown":
-				{
-					break;
-				}
-			case "HTML":
-				{
-					this.value(toMarkdown(this.value(), {
-						gfm: true
-					}));
-					break;
-				}
-		}
-	}
-
+	//End rendering
+	this._rendered = this.element;
 
 	// Fixes CodeMirror bug (#344)
 	var temp_cm = this.codemirror;
 	setTimeout(function() {
 		temp_cm.refresh();
 	}.bind(temp_cm), 0);
+};
+
+SimpleMDE.prototype.moveToStartMode = function() {
+	var inputTextMode = this.options.inputTextMode;
+	if(!inputTextMode) {
+		inputTextMode = this.autodetermineLanguage();
+	}
+	var currentMode = this.options.currentMode;
+	if(!currentMode) {
+		currentMode = inputTextMode;
+	}
+	if(inputTextMode !== currentMode) {
+		var currentLang = lang.languages[currentMode];
+		var text = currentLang.convert(this.value(), inputTextMode);
+		this.value(text);
+		currentLang.setMode(this);
+	}
+};
+
+function setSize(editor) {
+	switch(editor.options.size) {
+		case("Small"):
+			{
+				editor.codemirror.getWrapperElement().className += " CodeMirror-small";
+				break;
+			}
+		case("Standard"):
+			{
+				editor.codemirror.getWrapperElement().className += " CodeMirror-standard";
+				break;
+			}
+		default:
+			{
+				throw "Unknown size of SimpleMde " + editor.options.size;
+			}
+	}
+}
+
+SimpleMDE.prototype.autodetermineLanguage = function() {
+	var text = this.value();
+	if(text.match("/<.*./g")) {
+		lang.languages.HTML.setMode(this);
+	} else {
+		lang.languages.Markdown.setMode(this);
+	}
 };
 
 
@@ -277,8 +237,5 @@ SimpleMDE.prototype.value = function(val) {
 	}
 };
 
-
-SimpleMDE.saveHTML = html.saveHTML;
-SimpleMDE.saveMarkdown = html.saveMarkdown;
 
 module.exports = SimpleMDE;

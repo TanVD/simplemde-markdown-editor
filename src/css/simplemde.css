@@ -416,3 +416,7 @@ p.tag-class:hover {
 .CodeMirror .CodeMirror-placeholder {
     opacity: .5;
 }
+
+a.disabled {
+    pointer-events: none;
+}

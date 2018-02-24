@@ -1,7 +1,12 @@
 /**
  * The state of CodeMirror at the given position.
  */
-function getState(cm, pos) {
+function getState(editor, pos) {
+    if (editor.options.currentMode !== "Markdown") {
+        return {};
+    }
+
+    var cm = editor.codemirror;
     pos = pos || cm.getCursor("start");
     var stat = cm.getTokenAt(pos);
     if (!stat.type) return {};

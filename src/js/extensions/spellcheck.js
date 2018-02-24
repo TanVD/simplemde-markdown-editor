@@ -178,5 +178,12 @@ function CodeMirrorSpellChecker(options, placeholders) {
     });
 }
 
+function enable(codemirror, placeholders) {
+    //Enable placeholders checking
+    CodeMirrorSpellChecker({
+        codeMirrorInstance: codemirror
+    }, placeholders);
+}
+
 // Export
-module.exports = CodeMirrorSpellChecker;
+module.exports.enable = enable;

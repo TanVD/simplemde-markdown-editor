@@ -98,6 +98,14 @@ function keyUpAutocompleteHandler(cm, event) {
         }
 }
 
+function enable(editor) {
+    CodeMirror.registerGlobalHelper("hint", "placeholders", function(a, b) {
+        return true;
+    }, createHints(editor.options.placeholders));
+    editor.codemirror.on("keyup", keyUpAutocompleteHandler);
+}
+
 module.exports.createHints = createHints;
 module.exports.keyUpAutocompleteHandler = keyUpAutocompleteHandler;
+module.exports.enable = enable;
 

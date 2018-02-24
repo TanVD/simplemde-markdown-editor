@@ -19,8 +19,8 @@ function createPlaceholder(text, group) {
 /**
  * Create tagsbar div element from specified items
  */
-function createTagsbar(self, items) {
-    items = items || self.options.tagsbar;
+function createTagsbar(editor) {
+    var items = editor.tagsbar;
 
     if (!items || items.length === 0) {
         return;
@@ -28,23 +28,17 @@ function createTagsbar(self, items) {
     var bar = document.createElement("div");
     bar.className = "editor-tagsbar";
 
-    var toolbarData = {};
-    self.toolbar = items;
-
     for (var i = 0; i < items.length; i++) {
         var el = createPlaceholder(items[i].description, items[i].group);
-        toolbarData[items[i].name] = el;
         bar.appendChild(el);
 
         // bind events, special for info
         if (items[i].action) {
-            el.onclick = createAddTag(self, items[i]);
+            el.onclick = createAddTag(editor, items[i]);
         }
     }
 
-    self.toolbarElements = toolbarData;
-
-    var cm = self.codemirror;
+    var cm = editor.codemirror;
     var cmWrapper = cm.getWrapperElement();
     cmWrapper.parentNode.insertBefore(bar, cmWrapper);
     return bar;

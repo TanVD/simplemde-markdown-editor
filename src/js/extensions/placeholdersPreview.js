@@ -16,5 +16,5 @@ function renderWithStyles(text, placeholders, styles) {
     return text;
 }
 
-module.exports.renderPlain = renderPlain;
+module.exports.render = renderPlain;
 module.exports.renderWithStyles = renderWithStyles;
