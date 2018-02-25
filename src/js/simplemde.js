@@ -135,7 +135,6 @@ SimpleMDE.prototype.render = function() {
 			"Ctrl-Space": "autocomplete"
 		},
 		lineWrapping: (options.lineWrapping !== false),
-		allowDropFileTypes: ["text/plain"],
 		styleSelectedText: (options.styleSelectedText !== undefined) ? options.styleSelectedText : true
 	});
 
@@ -147,6 +146,7 @@ SimpleMDE.prototype.render = function() {
 	this.gui = {};
 	if(this.options.isToolsbarEnabled) {
 		this.gui.toolbar = toolbar.createToolbar(this);
+		updateToolbarToCurrentLang(this);
 	}
 	if(this.options.isTagsbarEnabled) {
 		this.tagsbar = [];
@@ -176,6 +176,9 @@ SimpleMDE.prototype.render = function() {
 	//End rendering
 	this._rendered = this.element;
 
+	//set id
+	this.codemirror.getWrapperElement().setAttribute("id", this.element.id + "_cm");
+
 	// Fixes CodeMirror bug (#344)
 	var temp_cm = this.codemirror;
 	setTimeout(function() {
@@ -185,12 +188,25 @@ SimpleMDE.prototype.render = function() {
 
 SimpleMDE.prototype.resetLangToCurrentText = function() {
 	var inputTextMode = this.autodetectLanguage();
-	var currentMode = this.lang.current;
-	if(inputTextMode !== currentMode) {
-		var inputLang = lang.languages[inputTextMode];
-		inputLang.setMode(this);
+	var inputLang = lang.languages[inputTextMode];
+	inputLang.setMode(this);
+
+	this.lang.current = inputTextMode;
+
+	if(this.toolbar) {
+		updateToolbarToCurrentLang(this);
 	}
 };
+
+function updateToolbarToCurrentLang(editor) {
+	var select = editor.toolbar["switchMode"].element;
+	var langIndex = 0;
+	while(select.options[langIndex].value !== editor.lang.current &&
+		langIndex < editor.lang.list.length) {
+		langIndex++;
+	}
+	select.selectedIndex = langIndex;
+}
 
 function setSize(editor) {
 	switch(editor.options.size) {
@@ -215,7 +231,7 @@ SimpleMDE.prototype.autodetectLanguage = function(text) {
 	if(text === null || text === undefined) {
 		text = this.value();
 	}
-	if(text.match("/<\w+>/g")) {
+	if(RegExp(/<\w+>/g).test(text)) {
 		return lang.languages.HTML.name;
 	} else {
 		if(this.lang.list.indexOf(lang.languages.Markdown.name) !== -1) {
