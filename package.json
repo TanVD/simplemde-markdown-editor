@@ -24,7 +24,8 @@
     "codemirror": "*",
     "codemirror-spell-checker": "*",
     "marked": "*",
-    "turndown": "*"
+    "turndown": "*",
+    "turndown-plugin-gfm": "*"
   },
   "devDependencies": {
     "browserify": "*",

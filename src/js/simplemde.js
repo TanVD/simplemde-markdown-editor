@@ -86,10 +86,6 @@ function SimpleMDE(options) {
 	SimpleMDE.instances.push(this);
 }
 
-function readPlaceholders() {
-
-}
-
 function initTexts(editor) {
 	// Merging the insertTexts, with the given options
 	editor.options.insertTexts = extend({}, insertTexts, editor.options.insertTexts || {});
@@ -117,14 +113,23 @@ SimpleMDE.prototype.render = function() {
 
 	spellchecker.enable(CodeMirror, options.placeholders);
 
+	//Set lang state
+	this.lang = {
+		list: options.modes,
+		current: options.startMode
+	};
+	if(!this.lang.current) {
+		this.lang.current = this.autodetectLanguage(this.element.value);
+	}
+
 	this.codemirror = CodeMirror.fromTextArea(this.element, {
-		mode: modes.getSpellCheckMode(options.startMode),
-		backdrop: modes.getMode(options.startMode),
+		mode: modes.getSpellCheckMode(this.lang.current),
+		backdrop: modes.getMode(this.lang.current),
 		theme: "paper",
 		tabSize: (options.tabSize !== undefined) ? options.tabSize : 2,
 		indentUnit: (options.tabSize !== undefined) ? options.tabSize : 2,
 		indentWithTabs: (options.indentWithTabs !== false),
-		lineNumbers: false,
+		lineNumbers: options.lineNumbers === true,
 		autofocus: (options.autofocus === true),
 		extraKeys: {
 			"Ctrl-Space": "autocomplete"
@@ -138,7 +143,6 @@ SimpleMDE.prototype.render = function() {
 	this.element.codemirror = this.codemirror;
 	this.element.simplemde = this;
 
-	options.currentMode = options.startMode;
 
 	this.gui = {};
 	if(this.options.isToolsbarEnabled) {
@@ -165,8 +169,8 @@ SimpleMDE.prototype.render = function() {
 		autocomplete.enable(this);
 	}
 
-	//Move from inputTextMode to startMode
-	this.moveToStartMode();
+	//Reset editor to mode applicable for current text
+	this.resetLangToCurrentText();
 
 
 	//End rendering
@@ -179,20 +183,12 @@ SimpleMDE.prototype.render = function() {
 	}.bind(temp_cm), 0);
 };
 
-SimpleMDE.prototype.moveToStartMode = function() {
-	var inputTextMode = this.options.inputTextMode;
-	if(!inputTextMode) {
-		inputTextMode = this.autodetermineLanguage();
-	}
-	var currentMode = this.options.currentMode;
-	if(!currentMode) {
-		currentMode = inputTextMode;
-	}
+SimpleMDE.prototype.resetLangToCurrentText = function() {
+	var inputTextMode = this.autodetectLanguage();
+	var currentMode = this.lang.current;
 	if(inputTextMode !== currentMode) {
-		var currentLang = lang.languages[currentMode];
-		var text = currentLang.convert(this.value(), inputTextMode);
-		this.value(text);
-		currentLang.setMode(this);
+		var inputLang = lang.languages[inputTextMode];
+		inputLang.setMode(this);
 	}
 };
 
@@ -215,12 +211,18 @@ function setSize(editor) {
 	}
 }
 
-SimpleMDE.prototype.autodetermineLanguage = function() {
-	var text = this.value();
-	if(text.match("/<.*./g")) {
-		lang.languages.HTML.setMode(this);
+SimpleMDE.prototype.autodetectLanguage = function(text) {
+	if(text === null || text === undefined) {
+		text = this.value();
+	}
+	if(text.match("/<\w+>/g")) {
+		return lang.languages.HTML.name;
 	} else {
-		lang.languages.Markdown.setMode(this);
+		if(this.lang.list.indexOf(lang.languages.Markdown.name) !== -1) {
+			return lang.languages.Markdown.name;
+		} else {
+			return lang.languages.PlainText.name;
+		}
 	}
 };
 

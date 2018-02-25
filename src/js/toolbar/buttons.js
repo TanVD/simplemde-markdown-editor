@@ -1,4 +1,4 @@
-var $ =require("jquery");
+var $ = require("jquery");
 var toggles = require("../toggles/package");
 var languages = require("../extensions/languagesMode");
 
@@ -141,16 +141,16 @@ function toolbarBuiltInButtons(editor) {
         },
         "switchMode": {
             name: "switchMode",
-            createElement: createCombobox(editor.options.modes),
-            setAction: setOnChangeAction(function(editor, e) {
+            createElement: createCombobox(editor.lang.list),
+            setAction: setOnChangeAction(function (editor, e) {
                 var select = editor.toolbar["switchMode"].element;
                 var selectedOption = select.options[select.selectedIndex].value;
                 try {
                     languages.switchMode(editor, selectedOption);
                 } catch (e) {
                     var previousIndex = 0;
-                    while (select.options[previousIndex].value !== editor.options.currentMode
-                                && previousIndex < editor.options.modes.length) {
+                    while (select.options[previousIndex].value !== editor.lang.current
+                    && previousIndex < editor.lang.list) {
                         previousIndex++;
                     }
                     select.selectedIndex = previousIndex;
@@ -159,7 +159,7 @@ function toolbarBuiltInButtons(editor) {
                     span.innerHTML = " Current text can not be converted to " + selectedOption;
 
                     editor.gui.toolbar.appendChild(span);
-                    setTimeout(function(){
+                    setTimeout(function () {
                         $(span).remove();
                     }, 5000);
                 }

@@ -1,16 +1,11 @@
-var marked = require("marked");
-var TurndownService = require("turndown");
+var markdownToHtml = require("../render/MarkdownToHtml");
+var htmlToMarkdown = require("../render/HtmlToMarkdown");
 var modes = require("../mode/package");
-var turnDownService = new TurndownService({
-    defaultReplacement: function (innerHTML, node) {
-        throw SyntaxError("Turndown could not convert some html constructs to Markdown");
-    }
-});
 
 function toMarkdown(text, language) {
-    switch(language.name) {
+    switch (language.name) {
         case ("HTML") : {
-            return turnDownService.turndown(text);
+            return htmlToMarkdown(text);
         }
         case ("Markdown") : {
             return text;
@@ -22,7 +17,7 @@ function toMarkdown(text, language) {
 }
 
 function preview(text) {
-    return marked(text);
+    return markdownToHtml(text);
 }
 
 function setMode(editor) {
@@ -30,12 +25,15 @@ function setMode(editor) {
     cm.clearHistory();
     cm.setOption("mode", modes.spellCheckModeMarkdown);
     cm.setOption("backdrop", modes.markdownMode);
-    Object.keys(editor.toolbar).forEach(function (key) {
-        var item = editor.toolbar[key];
-        if (item.markdownOnly) {
-            item.element.style.pointerEvents = "auto";
-        }
-    });
+
+    if (editor.toolbar) {
+        Object.keys(editor.toolbar).forEach(function (key) {
+            var item = editor.toolbar[key];
+            if (item.markdownOnly) {
+                item.element.style.pointerEvents = "auto";
+            }
+        });
+    }
 }
 
 module.exports.toMarkdown = toMarkdown;

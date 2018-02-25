@@ -1,7 +1,7 @@
 var modes = require("../mode/package");
 
 function toPlainText(text, language) {
-    switch(language.name) {
+    switch (language.name) {
         case ("HTML") : {
             throw SyntaxError("HTML can not be converted to PlainText");
         }
@@ -24,12 +24,14 @@ function setMode(editor) {
     cm.setOption("mode", modes.spellCheckModeHtml);
     cm.setOption("backdrop", modes.htmlMode);
 
-    Object.keys(editor.toolbar).forEach(function (key) {
-        var item = editor.toolbar[key];
-        if (item.markdownOnly) {
-            item.element.style.pointerEvents = "none";
-        }
-    });
+    if (editor.toolbar) {
+        Object.keys(editor.toolbar).forEach(function (key) {
+            var item = editor.toolbar[key];
+            if (item.markdownOnly) {
+                item.element.style.pointerEvents = "none";
+            }
+        });
+    }
 }
 
 module.exports.toPlainText = toPlainText;

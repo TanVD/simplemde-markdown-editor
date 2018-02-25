@@ -1,18 +1,18 @@
 var lang = require("../languages/languages");
 
 function nextMode(editor) {
-    switchBetweenModes(editor, editor.options.modes);
+    switchBetweenModes(editor, editor.lang.list);
 }
 
 function switchMode(editor, language) {
-    var modes = editor.options.modes;
-    var currentLanguage = lang.languages[editor.options.currentMode];
+    var modes = editor.lang.list;
+    var currentLanguage = lang.languages[editor.lang.current];
     var nextLanguage = lang.languages[language];
     switchToLanguage(editor, modes, currentLanguage, nextLanguage);
 }
 
 function switchBetweenModes(editor, modes) {
-    var currentMode = editor.options.currentMode;
+    var currentMode = editor.lang.current;
     var index = 0;
     while (currentMode !== modes[index] && index < modes.length) {
         index++;
@@ -33,7 +33,7 @@ function switchBetweenModes(editor, modes) {
         switchBetweenModes(editor, modes);
     }
 
-    editor.toolbar["switchMode"].element.innerHTML = editor.options.currentMode;
+    editor.toolbar["switchMode"].element.innerHTML = editor.lang.current;
 }
 
 function switchToLanguage(editor, modes, currentLanguage, nextLanguage) {
@@ -42,7 +42,7 @@ function switchToLanguage(editor, modes, currentLanguage, nextLanguage) {
     editor.value("");
     nextLanguage.setMode(editor);
     editor.value(nextText);
-    editor.options.currentMode = nextLanguage.name;
+    editor.lang.current = nextLanguage.name;
 }
 
 module.exports.nextMode = nextMode;

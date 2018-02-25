@@ -5,3 +5,7 @@ module.exports.spellCheckModeHtml = {
 module.exports.spellCheckModeMarkdown = {
     name: "spell-checker-markdown"
 };
+
+module.exports.spellCheckModePlainText = {
+    name: "spell-checker-plaintext"
+};

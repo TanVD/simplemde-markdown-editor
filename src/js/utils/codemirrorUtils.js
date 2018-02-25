@@ -2,7 +2,7 @@
  * The state of CodeMirror at the given position.
  */
 function getState(editor, pos) {
-    if (editor.options.currentMode !== "Markdown") {
+    if (editor.lang.current !== "Markdown") {
         return {};
     }
 

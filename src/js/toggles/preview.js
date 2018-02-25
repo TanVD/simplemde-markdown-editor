@@ -1,14 +1,5 @@
 var placeholdersRenderer = require("../extensions/placeholdersPreview");
-var marked = require("marked");
-var markdownRenderer = function (text) {
-    if (marked) {
-        var markedOptions = {
-            gfm: false
-        };
-        marked.setOptions(markedOptions);
-        return marked(text);
-    }
-};
+var markdownToHtml = require("../render/MarkdownToHtml");
 
 /**
  * Preview action.
@@ -44,7 +35,7 @@ function togglePreview(editor) {
             toolbar_div.className += " disabled-for-preview";
         }
     }
-    preview.innerHTML = placeholdersRenderer.renderWithStyles(markdownRenderer(editor.value()), editor.options.placeholders, {
+    preview.innerHTML = placeholdersRenderer.renderWithStyles(markdownToHtml(editor.value()), editor.options.placeholders, {
         "Text": "preview-placeholder-text",
         "Link": "preview-placeholder-link"
     });

@@ -1,13 +1,13 @@
-var marked = require("marked");
+var markdownToHtml = require("../render/MarkdownToHtml");
 var modes = require("../mode/package");
 
 function toHtml(text, language) {
-    switch(language.name) {
+    switch (language.name) {
         case ("HTML") : {
             return text;
         }
         case ("Markdown") : {
-            return marked(text);
+            return markdownToHtml(text);
         }
         case ("PlainText") : {
             return text;
@@ -25,12 +25,14 @@ function setMode(editor) {
     cm.setOption("mode", modes.spellCheckModeHtml);
     cm.setOption("backdrop", modes.htmlMode);
 
-    Object.keys(editor.toolbar).forEach(function (key) {
-        var item = editor.toolbar[key];
-        if (item.markdownOnly) {
-            item.element.style.pointerEvents = "none";
-        }
-    });
+    if (editor.toolbar) {
+        Object.keys(editor.toolbar).forEach(function (key) {
+            var item = editor.toolbar[key];
+            if (item.markdownOnly) {
+                item.element.style.pointerEvents = "none";
+            }
+        });
+    }
 }
 
 module.exports.toHtml = toHtml;
