@@ -150,7 +150,7 @@ function toolbarBuiltInButtons(editor) {
                 } catch (e) {
                     var previousIndex = 0;
                     while (select.options[previousIndex].value !== editor.lang.current
-                    && previousIndex < editor.lang.list) {
+                    && previousIndex < editor.lang.list.length) {
                         previousIndex++;
                     }
                     select.selectedIndex = previousIndex;
