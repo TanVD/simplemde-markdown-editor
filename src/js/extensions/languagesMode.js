@@ -38,7 +38,7 @@ function switchBetweenModes(editor, modes) {
 
 function switchToLanguage(editor, modes, currentLanguage, nextLanguage) {
     var text = editor.value();
-    var nextText = nextLanguage.convert(text, currentLanguage);
+    var nextText = nextLanguage.convert(editor, text, currentLanguage);
     editor.value("");
     nextLanguage.setMode(editor);
     editor.value(nextText);

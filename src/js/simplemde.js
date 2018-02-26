@@ -65,6 +65,8 @@ SimpleMDE.instances = [];
 function SimpleMDE(options) {
 	// Set default options for parsing config
 	this.options = extend(options, JSON.parse(options.element.getAttribute("simpleMdeConfig")) || {});
+	this.renderer = this.options.renderer;
+
 
 	// Auto download FA
 	downloadFa();

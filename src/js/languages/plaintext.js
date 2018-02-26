@@ -1,6 +1,6 @@
 var modes = require("../mode/package");
 
-function toPlainText(text, language) {
+function toPlainText(editor, text, language) {
     switch (language.name) {
         case ("HTML") : {
             throw SyntaxError("HTML can not be converted to PlainText");
@@ -14,7 +14,7 @@ function toPlainText(text, language) {
     }
 }
 
-function preview(text) {
+function preview(editor, text) {
     return text;
 }
 

@@ -2,10 +2,10 @@ var markdownToHtml = require("../render/MarkdownToHtml");
 var htmlToMarkdown = require("../render/HtmlToMarkdown");
 var modes = require("../mode/package");
 
-function toMarkdown(text, language) {
+function toMarkdown(editor, text, language) {
     switch (language.name) {
         case ("HTML") : {
-            return htmlToMarkdown(text);
+            return htmlToMarkdown.getRenderer(editor)(text);
         }
         case ("Markdown") : {
             return text;
@@ -16,8 +16,8 @@ function toMarkdown(text, language) {
     }
 }
 
-function preview(text) {
-    return markdownToHtml(text);
+function preview(editor, text) {
+    return markdownToHtml.getRenderer(editor)(text);
 }
 
 function setMode(editor) {

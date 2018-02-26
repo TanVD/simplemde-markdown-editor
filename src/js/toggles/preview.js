@@ -35,7 +35,7 @@ function togglePreview(editor) {
         }
     }
     var previewRenderer = editor.lang.getCurrentLang().preview;
-    preview.innerHTML = placeholdersRenderer.renderWithStyles(previewRenderer(editor.value()), editor.options.placeholders, {
+    preview.innerHTML = placeholdersRenderer.renderWithStyles(previewRenderer(editor, editor.value()), editor.options.placeholders, {
         "Text": "preview-placeholder-text",
         "Link": "preview-placeholder-link"
     });
