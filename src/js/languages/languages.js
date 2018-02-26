@@ -21,7 +21,7 @@ module.exports.languages = Object.freeze({
     PlainText: {
         id: 2,
         name: "PlainText",
-        convert: plaintext.toPlaintext,
+        convert: plaintext.toPlainText,
         setMode: plaintext.setMode,
         preview: plaintext.preview
     }

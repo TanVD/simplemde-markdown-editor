@@ -114,9 +114,13 @@ SimpleMDE.prototype.render = function() {
 	spellchecker.enable(CodeMirror, options.placeholders);
 
 	//Set lang state
+	var editor = this;
 	this.lang = {
 		list: options.modes,
-		current: options.startMode
+		current: options.startMode,
+		getCurrentLang: function() {
+			return lang.languages[editor.lang.current];
+		}
 	};
 	if(!this.lang.current) {
 		this.lang.current = this.autodetectLanguage(this.element.value);

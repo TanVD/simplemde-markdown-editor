@@ -1,5 +1,4 @@
 var placeholdersRenderer = require("../extensions/placeholdersPreview");
-var markdownToHtml = require("../render/MarkdownToHtml");
 
 /**
  * Preview action.
@@ -35,7 +34,8 @@ function togglePreview(editor) {
             toolbar_div.className += " disabled-for-preview";
         }
     }
-    preview.innerHTML = placeholdersRenderer.renderWithStyles(markdownToHtml(editor.value()), editor.options.placeholders, {
+    var previewRenderer = editor.lang.getCurrentLang().preview;
+    preview.innerHTML = placeholdersRenderer.renderWithStyles(previewRenderer(editor.value()), editor.options.placeholders, {
         "Text": "preview-placeholder-text",
         "Link": "preview-placeholder-link"
     });
