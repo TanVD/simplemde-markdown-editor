@@ -4,14 +4,21 @@ var languages = require("../extensions/languagesMode");
 
 function createCombobox(options) {
     return function () {
-        var sel = document.createElement("select");
-        for (var i = 0; i < options.length; i++) {
-            var opt = document.createElement("option");
-            opt.value = options[i];
-            opt.innerHTML = options[i];
-            sel.appendChild(opt);
+        if (options.length > 1) {
+            var sel = document.createElement("select");
+            for (var i = 0; i < options.length; i++) {
+                var opt = document.createElement("option");
+                opt.value = options[i];
+                opt.innerHTML = options[i];
+                sel.appendChild(opt);
+            }
+            return sel;
+        } else {
+            var label = document.createElement("span");
+            label.className += "simplemde-mode-label";
+            label.innerHTML = options[0];
+            return label;
         }
-        return sel;
     };
 }
 

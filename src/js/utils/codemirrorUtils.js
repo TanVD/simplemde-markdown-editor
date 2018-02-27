@@ -1,5 +1,5 @@
 /**
- * The state of CodeMirror at the given position.
+ * The state of CodeMirror at the given position for Markdown toolbar.
  */
 function getState(editor, pos) {
     if (editor.lang.current !== "Markdown") {

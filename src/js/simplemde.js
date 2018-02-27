@@ -205,13 +205,15 @@ SimpleMDE.prototype.resetLangToCurrentText = function() {
 };
 
 function updateToolbarToCurrentLang(editor) {
-	var select = editor.toolbar["switchMode"].element;
-	var langIndex = 0;
-	while(select.options[langIndex].value !== editor.lang.current &&
-		langIndex < editor.lang.list.length) {
-		langIndex++;
+	if(editor.lang.list.length > 1) {
+		var select = editor.toolbar["switchMode"].element;
+		var langIndex = 0;
+		while(select.options[langIndex].value !== editor.lang.current &&
+			langIndex < editor.lang.list.length) {
+			langIndex++;
+		}
+		select.selectedIndex = langIndex;
 	}
-	select.selectedIndex = langIndex;
 }
 
 function setSize(editor) {
