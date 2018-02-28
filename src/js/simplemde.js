@@ -214,6 +214,15 @@ function updateToolbarToCurrentLang(editor) {
 		}
 		select.selectedIndex = langIndex;
 	}
+	if(editor.lang.current !== "Markdown") {
+		Object.keys(editor.toolbar).forEach(function(key) {
+
+			var item = editor.toolbar[key];
+			if(item.markdownOnly && editor.gui.toolbar.contains(item.element)) {
+				editor.gui.toolbar.removeChild(item.element);
+			}
+		});
+	}
 }
 
 function setSize(editor) {

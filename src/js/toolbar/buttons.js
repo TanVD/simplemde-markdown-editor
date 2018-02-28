@@ -12,11 +12,12 @@ function createCombobox(options) {
                 opt.innerHTML = options[i];
                 sel.appendChild(opt);
             }
+            sel.className += "simplemde-mode-combobox";
             return sel;
         } else {
             var label = document.createElement("span");
             label.className += "simplemde-mode-label";
-            label.innerHTML = options[0];
+            label.innerHTML = options[0] + " mode";
             return label;
         }
     };
@@ -88,7 +89,8 @@ function toolbarBuiltInButtons(editor) {
         "separator-1": {
             name: "separator-1",
             setAction: emptyAction(),
-            createElement: createSep
+            createElement: createSep,
+            markdownOnly: true
         },
         "quote": {
             name: "quote",
@@ -114,7 +116,8 @@ function toolbarBuiltInButtons(editor) {
         "separator-2": {
             name: "separator-2",
             setAction: emptyAction(),
-            createElement: createSep
+            createElement: createSep,
+            markdownOnly: true
         },
         "link": {
             name: "link",
@@ -133,7 +136,8 @@ function toolbarBuiltInButtons(editor) {
         "separator-3": {
             name: "separator-3",
             setAction: emptyAction(),
-            createElement: createSep
+            createElement: createSep,
+            markdownOnly: true
         },
         "preview": {
             name: "preview",

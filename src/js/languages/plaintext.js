@@ -27,8 +27,8 @@ function setMode(editor) {
     if (editor.toolbar) {
         Object.keys(editor.toolbar).forEach(function (key) {
             var item = editor.toolbar[key];
-            if (item.markdownOnly) {
-                item.element.style.pointerEvents = "none";
+            if (item.markdownOnly && editor.gui.toolbar.contains(item.element)) {
+                editor.gui.toolbar.removeChild(item.element);
             }
         });
     }

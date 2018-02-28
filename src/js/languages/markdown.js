@@ -27,11 +27,12 @@ function setMode(editor) {
     cm.setOption("backdrop", modes.markdownMode);
 
     if (editor.toolbar) {
+        while (editor.gui.toolbar.hasChildNodes()) {
+            editor.gui.toolbar.removeChild(editor.gui.toolbar.lastChild);
+        }
         Object.keys(editor.toolbar).forEach(function (key) {
             var item = editor.toolbar[key];
-            if (item.markdownOnly) {
-                item.element.style.pointerEvents = "auto";
-            }
+            editor.gui.toolbar.appendChild(item.element);
         });
     }
 }
